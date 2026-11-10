@@ -60,6 +60,14 @@ rate, so the artifact is not producing the signal.
 | held-out log-likelihood gain over scalar, raw Σ (nats/res/frame) | −0.055 [−0.136, 0.018] |
 | same, Σ shrunk to α | +0.167 [0.144, 0.192] |
 
+**Held-out check (Phase 0.3, `06_heldout_alpha.py`).** With α fitted on
+the 83 train proteins (homology split) by held-out likelihood, α = 0.55. On
+the 34 test proteins: raw Σ −0.118 [−0.326, 0.048], shrunk +0.155
+[0.092, 0.220] nats/res/frame. The conclusion survives held-out fitting. (The
+0.74 above minimises shape distance, a different criterion, so the two
+values are not interchangeable. The fusion benchmark used 0.74; per-residue
+priors there differ from scalar by ~0.03 Å either way.)
+
 α < 1 means one replica's ellipsoid is *more* elongated than what the other
 replica supports; a quarter of its log-anisotropy is sampling noise. Used raw,
 that overconfidence costs as much likelihood as the direction gains. Shrunk,
