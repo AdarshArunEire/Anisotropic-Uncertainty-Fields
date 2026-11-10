@@ -73,7 +73,8 @@ the experimental structure. Paired per protein.
 On the test split, primary settings:
 
 - **GO** if the val-chosen PAE source (or ANM) has
-  (i) mean C_10 with 95% CI lower bound > 2.0, **and**
+  (i) mean C_10 with 95% CI lower bound > 2.0 *[superseded by amendment 1,
+  see below]*, **and**
   (ii) in fusion, a paired improvement over **both** the oracle scalar and
   PAE-rigid-domains, on **both** RMSD and lDDT, with 95% CI excluding zero,
   better in >= 60% of test proteins.
@@ -87,4 +88,43 @@ the Phase A write-up is produced.
 
 ## Amendments
 
-(none)
+### 2026-11-10, amendment 1 (before any A2 data was collected)
+
+**Change.** Gate criterion (i) is replaced. Old: mean C_10 with 95% CI
+lower bound > 2.0. New: the per-protein ratio
+C_10(source) / C_10(pLDDT scalar) has a geometric mean over test proteins
+whose 95% bootstrap CI lower bound is > 1.5, where "pLDDT scalar" is the
+diagonal covariance with per-residue variance from pLDDT (the realistic
+scalar a user has). The oracle scalar (variance from the true error) is
+reported alongside but is not the reference for (i), since it already
+knows which residues are wrong.
+
+**Reason.** On the A1 trial (2 ATLAS proteins, simulation errors), a
+covariance with *no* coupling and *no* direction (per-residue variance
+only) reached C_10 of about 7-10: errors concentrate in flexible residues,
+so any source that knows which residues are flexible beats random by far
+more than 2x. The old threshold could not distinguish coupling from a
+scalar and was therefore meaningless as a test of coupling. Criterion (ii)
+(fusion vs oracle scalar and PAE rigid domains) is unchanged.
+
+**Status at time of amendment.** No AlphaFold error vectors (A2) had been
+collected and no A4 metric computed.
+
+### 2026-11-10, amendment 2: clarifications (before any A4 metric)
+
+1. **Template leak check per protein.** AlphaFold DB is at v6 and some
+   models were re-created after 2023 (e.g. `modelCreatedDate` 2025-08-01),
+   so "released after AlphaFold DB v4" is not enough. A protein is kept only
+   if its AlphaFold model's `modelCreatedDate` is *before* the experimental
+   entry's initial release date. Stricter than the original wording.
+2. **"Modelled range"** in the missing-residue exclusion is the span from
+   the first to the last observed residue of the chain, so disordered
+   termini are not counted as missing.
+3. **Residue mapping** uses SIFTS segments on the sequential residue index
+   (`label_seq_id`), since author numbering is absent at unobserved
+   segment ends.
+4. One-instance cryo-EM fibril entries pass the original criteria (e.g.
+   α-synuclein, 12AR). They are kept, as the criteria allow, and will be
+   reported as a subgroup if present in the test split.
+
+Status: A2 build in progress; no A4 metric computed.

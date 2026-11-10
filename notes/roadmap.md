@@ -35,19 +35,34 @@ order is kept.
 | 17 | 2026-11-10 18:21 | 0.3 | Shrinkage α fitted on train, scored on test | α = 0.55; test: raw −0.118, shrunk +0.155 [0.092, 0.220] nats/res/frame | `phase0/splits-and-preregistration` | `fe38372` Phase 0.3: held-out shrinkage alpha (train-fitted 0.55; test gain +0.155 nats) |
 | 18 | 2026-11-10 18:22 | 0.4 | Phase A pre-registration ([phaseA_preregistration.md](phaseA_preregistration.md)) | — | `phase0/splits-and-preregistration` | `5388611` Phase 0.4: pre-register Phase A metrics, controls and go/no-go gate |
 | 19 | 2026-11-10 18:22 | 0.6 | CI: pytest on every push | — | `phase0/splits-and-preregistration` | `886f2a8` Phase 0.6: run the test suite on GitHub Actions |
+| 20 | 2026-11-10 18:22 | housekeeping | Roadmap log for Phase 0 | — | `phase0/splits-and-preregistration` | `26f3e8e` Roadmap: log Phase 0 steps 0.2-0.6 |
+| 21 | 2026-11-10 18:24 | 0.1 | All work merged to `main` via [PR #1](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/1) (merge commit, so earlier hashes stay valid) | — | `main` | `d5b9841` Merge Stage 1 audit, downstream fusion test, and Phase 0 groundwork (#1) |
+| 22 | 2026-11-10 18:24 | housekeeping | Roadmap log for merge | — | `phaseA/subspace-test` | `59da37e` Roadmap: log merge to main (PR #1) |
+| 23 | 2026-11-10 18:26 | A1 | Capture-ratio metric + subspace test script | — | `phaseA/subspace-test` | `ae67eaa` Phase A1: capture-ratio metric and subspace test on ATLAS replicas |
+| 24 | 2026-11-10 18:26 | 0.4 | Gate (i) now relative to pLDDT scalar; trial showed scalar ≈ 7–10x random | — | `phaseA/subspace-test` | `19e6564` Pre-registration amendment 1: capture gate relative to pLDDT scalar, not random |
+| 25 | 2026-11-10 18:29 | A2 | AlphaFold error-set builder; per-protein template-leak check | ~22% of candidates pass filters | `phaseA/subspace-test` | `069fde2` Phase A2: AlphaFold error-set builder (RCSB >= 2023, SIFTS, AFDB, PAE) |
+| 26 | 2026-11-10 18:30 | 0.4 | Amendment 2: AF model must predate release; mapping clarifications | — | `phaseA/subspace-test` | `cf3b9a2` Pre-registration amendment 2: per-protein template-leak check and mapping clarifications |
+| 27 | 2026-11-10 18:36 | A1 | A1 results ([phaseA1_subspace.md](phaseA1_subspace.md)) | C_10: MD coupling 30.3, ANM 20.7, ellipsoid 12.1, scalar 10.3; ANM directions good, spectrum off | `phaseA/subspace-test` | `b4cc3d7` Phase A1 results: coupled directions carry 3x the error of a scalar; ANM directions good, spectrum off |
 
 ## Status of planned steps
 
+**Resume here (2026-11-10):** new session, branch from `phaseA/subspace-test`
+(not yet merged to `main`). Setup: `pip install -e ".[test,atlas]" gemmi`.
+Local data is gone; rebuild what a step needs with the committed scripts
+(`00_build_dataset.py` for ATLAS sets, ~30 min). Next: rerun A2, then A3
+(PAE → covariance recipes, frozen on train) and A4.
+
 | Step | Status | Branch | Notes |
 |---|---|---|---|
-| 0.1 merge to main | waiting for Adarsh's review | — | `stage1/atlas-loader`, `stage1/downstream-fusion` |
+| 0.1 merge to main | done ([PR #1](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/1)) | `main` | includes stage1/* and phase0 branches |
 | 0.2 splits | done | `phase0/splits-and-preregistration` | `splits/atlas_splits.tsv` |
 | 0.3 held-out α | done | `phase0/splits-and-preregistration` | α = 0.55 |
 | 0.4 pre-registration | done | `phase0/splits-and-preregistration` | |
 | 0.5 licences | done (noted in roadmap) | — | |
 | 0.6 CI | done | `phase0/splits-and-preregistration` | GitHub Actions |
-| A1 subspace test | in progress | `phaseA/subspace-test` | |
-| A2–A5 | not started | — | |
+| A1 subspace test | done | `phaseA/subspace-test` | C_10: MD coupling 30, ANM 21, per-residue 12, scalar 10 ([phaseA1_subspace.md](phaseA1_subspace.md)) |
+| A2 AlphaFold error set | interrupted (session out of resources) | `phaseA/subspace-test` | 281 accepted of 1,248 processed when stopped; nothing kept. Rerun `python3 experiments/phaseA/a2_build_af_error_set.py --target 1500 --workers 8` (deterministic, seed 0). Needs `pip install gemmi`. |
+| A3–A5 | not started | — | |
 | B, C | not started | — | |
 
 ---
