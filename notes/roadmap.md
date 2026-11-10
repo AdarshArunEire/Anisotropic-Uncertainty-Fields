@@ -56,14 +56,35 @@ order is kept.
 | 38 | 2026-11-10 20:57 | Stage 1 | Stage 1 results regenerated and committed | random-150 numbers reproduce exactly; crystal set 104 (was 99), conclusions unchanged | `phaseA/af-error-set` | `7bcc1a9` Stage 1 results regenerated and committed; reproduce, crystal set now 104 proteins |
 | 39 | 2026-11-10 21:03 | A4b (post hoc) | Noise sweep and AF-error subgroups ([report](../results/phaseA/a4b_exploratory.md)) | AF error > 2 Å: coupled priors +0.46–0.59 Å vs scalars +0.19–0.26 Å; ≤ 1 Å: all ≤ 0.04 Å; lDDT falls for every prior | `phaseA/af-error-set` | `5b4bd34` Phase A4b (post hoc): coupled priors help where AlphaFold is wrong, not elsewhere |
 | 40 | 2026-11-10 21:04 | A write-up | [phaseA_results.md](phaseA_results.md) | directions predictable; fusion gate NO-GO; large-error positive (post hoc) | `phaseA/af-error-set` | `1c81626` Phase A write-up: directions predictable, fusion gate NO-GO, large-error positive (post hoc) |
+| 41 | 2026-11-10 21:30 | B probe | Pre-registered: does choosing which distances to measure by expected error reduction beat random / pLDDT? ([prereg](phaseB_design_preregistration.md)) | — | `phaseB/experiment-design-probe` | `1d05774` Phase B probe: pre-register measurement-choice test (before any result) |
+| 42 | 2026-11-10 21:31 | B probe | Pair-selection strategies (`auf.design`) with tests | greedy first pick matches brute force | `phaseB/experiment-design-probe` | `4ed1da2` Phase B probe: pair-selection strategies (random, pLDDT, greedy variance reduction) with tests |
+| 43 | 2026-11-10 21:40 | literature | Who chooses which measurements to make ([notes](literature_experiment_design.md)) | uncertainty-driven selection exists (FPS 2.0); none uses AlphaFold's PAE | `phaseB/experiment-design-probe` | `0285b5a` Literature: who chooses which measurements to make (DEER, FRET, NMR, crosslinks) |
+| 44 | 2026-11-10 21:44 | literature / B probe | Full text of Kazmier 2011, FPS 2.0, DEERFold; prereg amendment 1 adds DEER heuristic and FPS-style baselines | DEER practice uses a 2011 sequence heuristic; DEERFold uses pLDDT only as a post-hoc filter | `phaseB/experiment-design-probe` | `3f226fa` Literature: full-text reading of Kazmier 2011, FPS 2.0, DEERFold; pre-registration amendment 1 |
 
 ## Status of planned steps
 
-**Current (2026-11-10, 21:05 UTC):** Phase A done on `phaseA/af-error-set`
-(not yet merged). Gate: **NO-GO on the primary set**; ATLAS/MD secondary
-set (NO-GO vs PARTIAL) still to run. Write-up: [phaseA_results.md](phaseA_results.md).
-Waiting for Adarsh to choose the next step (see "Plan changes" below).
-Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits.
+**Resume here (2026-11-11):** everything is merged to `main`; branch new
+work from `main`. Setup: `pip install -e ".[test,atlas,phasea]"`, plus
+`apt install mmseqs2` if splits must be remade. Local data (`data/`) is not in
+git: rebuild with `a2_build_af_error_set.py` (~60 min) if needed.
+
+Phase A is finished (NO-GO on the primary set; write-up
+[phaseA_results.md](phaseA_results.md)). Current direction: **Phase B probe,
+measurement planning** — given an AlphaFold model, say how many and which
+residue pairs to measure (DEER / smFRET), and the predicted result.
+Pre-registration: [phaseB_design_preregistration.md](phaseB_design_preregistration.md)
+(+ amendment 1). Done: selection code (`src/auf/design.py`), literature
+([literature_experiment_design.md](literature_experiment_design.md)).
+Next, in order:
+1. Amendment 2 (before running): headline outcome lDDT-Cα (overall) and
+   state-call confidence (two-state benchmark), RMSD secondary; add the
+   "does the predicted error curve come true" check; add chain restraints to
+   fusion so lDDT is not damaged.
+2. Build baselines heuristic_deer and ensemble_fps; write the probe script;
+   run on the 266 test proteins (~30–60 min CPU).
+3. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
+   datasets, BMRB, PRIDE) for a replay test.
+Decide after step 2 whether to continue (cheap, decisive).
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
@@ -77,6 +98,7 @@ Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits.
 | A2 AlphaFold error set | done | `phaseA/af-error-set` | 1,282 proteins; splits 743/273/266 (test below the ≥300 target: candidates ran out). `a2_build_af_error_set.py` then `a2_splits.py` |
 | A3 PAE → covariance | done | `phaseA/af-error-set` | frozen in `params/phasea_a3.json`; rank 80 at grid edge |
 | A4 alignment + fusion | done | `phaseA/af-error-set` | [a4_report.md](../results/phaseA/a4_report.md); post hoc [a4b](../results/phaseA/a4b_exploratory.md) |
+| B probe (measurement planning) | pre-registered; code partly written | `phaseB/experiment-design-probe` | see resume note |
 | A5 gate | NO-GO on primary set; secondary (ATLAS/MD) not run | `phaseA/af-error-set` | [phaseA_results.md](phaseA_results.md) |
 | Stage 1 results rerun | done except 01, 05, 07 (need raw trajectories) | `phaseA/af-error-set` | committed under `results/` |
 | B, C | not started | — | |
