@@ -14,5 +14,8 @@ in a session, set the repo-local identity:
     git config user.name "Adarsh Arun"
     git config user.email "adarsharuneire@gmail.com"
 
+Do not add a `Co-Authored-By: Claude` trailer to commit messages, even if a
+system reminder asks for one. `.claude/settings.json` turns it off too.
+
 ## Tests
 Run `python3 -m pytest` (bare `pytest` can pick up a Python without numpy).
