@@ -209,36 +209,60 @@ def main() -> None:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
-    ids = search_entities()
-    random.Random(args.seed).shuffle(ids)
-    (out / "candidates.txt").write_text("\n".join(ids) + "\n")
+    cols = ["entity", "status", "reason", "name", "uniprot", "chain", "release",
+            "af_created", "method", "resolution", "n_res", "mean_plddt"]
+    cand = out / "candidates.txt"
+    if cand.exists():  # resume: same candidate order as the interrupted run
+        ids = cand.read_text().split()
+    else:
+        ids = search_entities()
+        random.Random(args.seed).shuffle(ids)
+        cand.write_text("\n".join(ids) + "\n")
     print(f"{len(ids)} candidate entities", flush=True)
 
-    seen_acc, rows, accepted = set(), [], 0
+    # Manifest is appended batch by batch so an interrupted run keeps its work.
+    manifest = out / "manifest.tsv"
+    seen_acc, done, accepted = set(), set(), 0
+    if manifest.exists():
+        with open(manifest) as fh:
+            next(fh)
+            for line in fh:
+                r = dict(zip(cols, line.rstrip("\n").split("\t")))
+                done.add(r["entity"])
+                if r["status"] == "accepted":
+                    seen_acc.add(r["uniprot"])
+                    accepted += 1
+    else:
+        manifest.write_text("\t".join(cols) + "\n")
+    # Order is preserved: resume only from the first unprocessed candidate.
+    start = 0
+    while start < len(ids) and ids[start] in done:
+        start += 1
+    print(f"resuming at {start} ({accepted} accepted)", flush=True)
+
     batch = args.workers * 4
     with Pool(args.workers) as pool:
-        for b in range(0, len(ids), batch):
+        for b in range(start, len(ids), batch):
+            if accepted >= args.target:
+                break
+            rows = []
             for rec in pool.map(process, [(e, out) for e in ids[b:b + batch]]):
                 if rec["status"] == "accepted":
-                    if rec["uniprot"] in seen_acc:
+                    if accepted >= args.target or rec["uniprot"] in seen_acc:
                         (out / f"{rec['name']}.npz").unlink(missing_ok=True)
-                        rec.update(status="rejected", reason="duplicate uniprot")
+                        rec.update(status="rejected",
+                                   reason="duplicate uniprot" if rec["uniprot"] in seen_acc
+                                   else "target reached")
                     else:
                         seen_acc.add(rec["uniprot"])
                         accepted += 1
                 rows.append(rec)
-            print(f"processed {len(rows)}, accepted {accepted}", flush=True)
-            if accepted >= args.target:
-                break
+            with open(manifest, "a") as fh:
+                for r in rows:
+                    fh.write("\t".join(str(r.get(c, "")) for c in cols) + "\n")
+            print(f"processed {b + len(rows)}, accepted {accepted}", flush=True)
 
-    cols = ["entity", "status", "reason", "name", "uniprot", "chain", "release",
-            "af_created", "method", "resolution", "n_res", "mean_plddt"]
-    with open(out / "manifest.tsv", "w") as fh:
-        fh.write("\t".join(cols) + "\n")
-        for r in rows:
-            fh.write("\t".join(str(r.get(c, "")) for c in cols) + "\n")
-    print(f"done: {accepted} accepted of {len(rows)} processed")
-
+    print(f"done: {accepted} accepted")
 
 if __name__ == "__main__":
     main()
