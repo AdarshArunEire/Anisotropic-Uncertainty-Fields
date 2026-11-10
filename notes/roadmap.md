@@ -49,14 +49,21 @@ order is kept.
 | 31 | 2026-11-10 19:37 | housekeeping | All of `results/` committed; only large arrays ignored | — | `phaseA/af-error-set` | `a8b9641` Commit all results (reports, tables, figures); ignore only large arrays |
 | 32 | 2026-11-10 19:58 | A2 | AlphaFold error set rebuilt to the end of the 10,661 candidates ([manifest](../results/phaseA/afset_manifest.tsv), [splits](../splits/afset_splits.tsv)) | 1,282 proteins (1,248 X-ray, 34 cryo-EM; median 261 res, median pLDDT 95); train/val/test 743/273/266 — test below the ≥300 target | `phaseA/af-error-set` | `44e972e` Phase A2 rerun: 1,282 AlphaFold error proteins; MMseqs2 splits 743/273/266 |
 | 33 | 2026-11-10 20:02 | A4 | A4 figures (capture ratio, fusion gains) | — | `phaseA/af-error-set` | `59a1153` A4: capture-ratio and fusion-gain figures (dot + 95% CI) |
+| 34 | 2026-11-10 20:03 | 0.6 / Stage 1 | High-resolution ATLAS draw reconstructed (original list lost); entry lists committed in `manifests/` | — | `phaseA/af-error-set` | `034ee8b` Stage 1: reconstruct the high-resolution ATLAS draw; commit entry manifests |
+| 35 | 2026-11-10 20:27 | A3 | Recipes fitted on train and frozen (`params/phasea_a3.json`) | log-lik/dim: PAE low-rank −0.71, PAE domains −0.78, ANM −0.85, pLDDT −0.94; rank 80 at grid edge | `phaseA/af-error-set` | `07db870` Phase A3: PAE->covariance recipes fitted on train (743 proteins) and frozen |
+| 36 | 2026-11-10 20:33 | A4 | PAE source chosen on validation before any test metric | pae_lowrank (C_10 16.7 vs 16.2 / 16.0) | `phaseA/af-error-set` | `3d90730` Phase A4: PAE source chosen on validation (pae_lowrank), before any test metric |
+| 37 | 2026-11-10 20:56 | A4 / A5 | A4 on test (266) and gate ([report](../results/phaseA/a4_report.md)) | **NO-GO (primary set).** (i) pass: C_10 vs pLDDT 3.12 PAE, 3.87 ANM; (ii) fail: vs oracle scalar −0.027 Å, −3.3 lDDT | `phaseA/af-error-set` | `3d2bde7` Phase A4 results and A5 gate: NO-GO on the primary set |
+| 38 | 2026-11-10 20:57 | Stage 1 | Stage 1 results regenerated and committed | random-150 numbers reproduce exactly; crystal set 104 (was 99), conclusions unchanged | `phaseA/af-error-set` | `7bcc1a9` Stage 1 results regenerated and committed; reproduce, crystal set now 104 proteins |
+| 39 | 2026-11-10 21:03 | A4b (post hoc) | Noise sweep and AF-error subgroups ([report](../results/phaseA/a4b_exploratory.md)) | AF error > 2 Å: coupled priors +0.46–0.59 Å vs scalars +0.19–0.26 Å; ≤ 1 Å: all ≤ 0.04 Å; lDDT falls for every prior | `phaseA/af-error-set` | `5b4bd34` Phase A4b (post hoc): coupled priors help where AlphaFold is wrong, not elsewhere |
+| 40 | 2026-11-10 21:04 | A write-up | [phaseA_results.md](phaseA_results.md) | directions predictable; fusion gate NO-GO; large-error positive (post hoc) | `phaseA/af-error-set` | `1c81626` Phase A write-up: directions predictable, fusion gate NO-GO, large-error positive (post hoc) |
 
 ## Status of planned steps
 
-**Current (2026-11-10, 20:00 UTC):** working on `phaseA/af-error-set`
-(branched from `phaseA/subspace-test`, which is now merged to `main` as PR #2).
-Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits
-(`apt install mmseqs2`). A2 done; A3 fit running; then A4 + gate. Stage-1
-`results/` are being regenerated (ATLAS rebuild) so they can be committed.
+**Current (2026-11-10, 21:05 UTC):** Phase A done on `phaseA/af-error-set`
+(not yet merged). Gate: **NO-GO on the primary set**; ATLAS/MD secondary
+set (NO-GO vs PARTIAL) still to run. Write-up: [phaseA_results.md](phaseA_results.md).
+Waiting for Adarsh to choose the next step (see "Plan changes" below).
+Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits.
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
@@ -68,9 +75,22 @@ Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits
 | 0.6 CI | done | `phase0/splits-and-preregistration` | GitHub Actions |
 | A1 subspace test | done | `phaseA/subspace-test` | C_10: MD coupling 30, ANM 21, per-residue 12, scalar 10 ([phaseA1_subspace.md](phaseA1_subspace.md)) |
 | A2 AlphaFold error set | done | `phaseA/af-error-set` | 1,282 proteins; splits 743/273/266 (test below the ≥300 target: candidates ran out). `a2_build_af_error_set.py` then `a2_splits.py` |
-| A3 PAE → covariance | running (train only) | `phaseA/af-error-set` | `a3_fit_recipes.py` → `params/phasea_a3.json` |
-| A4–A5 | code ready, waiting for A3 | `phaseA/af-error-set` | `a4_alignment.py` |
+| A3 PAE → covariance | done | `phaseA/af-error-set` | frozen in `params/phasea_a3.json`; rank 80 at grid edge |
+| A4 alignment + fusion | done | `phaseA/af-error-set` | [a4_report.md](../results/phaseA/a4_report.md); post hoc [a4b](../results/phaseA/a4b_exploratory.md) |
+| A5 gate | NO-GO on primary set; secondary (ATLAS/MD) not run | `phaseA/af-error-set` | [phaseA_results.md](phaseA_results.md) |
+| Stage 1 results rerun | done except 01, 05, 07 (need raw trajectories) | `phaseA/af-error-set` | committed under `results/` |
 | B, C | not started | — | |
+
+### Plan changes
+
+**2026-11-10 (after A5).** The primary-set gate is NO-GO, so by the order of
+execution Phase C is next. Two items are proposed first, not yet agreed:
+(1) run the pre-registered ATLAS/MD secondary set to settle NO-GO vs
+PARTIAL; (2) pre-register a large-error follow-up (AF error > 2 Å or known
+conformational change), with the *fitted* PAE rigid-domain prior as the
+control and local geometry restraints in the fusion, since the post hoc A4b
+shows coupled priors roughly double the error removed there while every
+prior lowers lDDT.
 
 ---
 
