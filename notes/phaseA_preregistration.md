@@ -109,3 +109,22 @@ scalar and was therefore meaningless as a test of coupling. Criterion (ii)
 
 **Status at time of amendment.** No AlphaFold error vectors (A2) had been
 collected and no A4 metric computed.
+
+### 2026-11-10, amendment 2: clarifications (before any A4 metric)
+
+1. **Template leak check per protein.** AlphaFold DB is at v6 and some
+   models were re-created after 2023 (e.g. `modelCreatedDate` 2025-08-01),
+   so "released after AlphaFold DB v4" is not enough. A protein is kept only
+   if its AlphaFold model's `modelCreatedDate` is *before* the experimental
+   entry's initial release date. Stricter than the original wording.
+2. **"Modelled range"** in the missing-residue exclusion is the span from
+   the first to the last observed residue of the chain, so disordered
+   termini are not counted as missing.
+3. **Residue mapping** uses SIFTS segments on the sequential residue index
+   (`label_seq_id`), since author numbering is absent at unobserved
+   segment ends.
+4. One-instance cryo-EM fibril entries pass the original criteria (e.g.
+   α-synuclein, 12AR). They are kept, as the criteria allow, and will be
+   reported as a subgroup if present in the test split.
+
+Status: A2 build in progress; no A4 metric computed.
