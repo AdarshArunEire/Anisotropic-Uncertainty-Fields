@@ -30,14 +30,24 @@ order is kept.
 | 12 | 2026-11-10 18:10 | literature | Review of coupling priors for data fusion ([literature_coupling.md](literature_coupling.md)) | Benchmark, calibration, PAE→covariance appear open; DynaProt/BackFlip-2 already predict coupling | `stage1/downstream-fusion` | `0cb9c13` Add literature review on coupling priors for data fusion |
 | 13 | 2026-11-10 18:11 | downstream | Fusion results, 40 proteins ([downstream_fusion.md](downstream_fusion.md)) | Coupling removes 25% of error vs 4–5% per-residue; ANM coupling 6%; all priors overconfident | `stage1/downstream-fusion` | `9b871a3` Downstream fusion results: coupling matters, per-residue anisotropy does not |
 | 14 | 2026-11-10 18:18 | planning | Roadmap agreed (this file) | — | `stage1/downstream-fusion` | `26b4130` Add roadmap: phases 0/A/B/C with gates, controls and order |
+| 15 | 2026-11-10 18:19 | housekeeping | Chronological log + step status; maintenance rules in CLAUDE.md | — | `stage1/downstream-fusion` | `e9dc503` Roadmap: add chronological log and step status; CLAUDE.md: how to maintain it |
+| 16 | 2026-11-10 18:21 | 0.2 | Homology-aware splits for all ATLAS entries ([splits/](../splits/README.md)) | train 1166 / val 377 / test 395; random-150 → 83/33/34 | `phase0/splits-and-preregistration` | `075db44` Phase 0.2: homology-aware ATLAS splits (ECOD H-group components) |
+| 17 | 2026-11-10 18:21 | 0.3 | Shrinkage α fitted on train, scored on test | α = 0.55; test: raw −0.118, shrunk +0.155 [0.092, 0.220] nats/res/frame | `phase0/splits-and-preregistration` | `fe38372` Phase 0.3: held-out shrinkage alpha (train-fitted 0.55; test gain +0.155 nats) |
+| 18 | 2026-11-10 18:22 | 0.4 | Phase A pre-registration ([phaseA_preregistration.md](phaseA_preregistration.md)) | — | `phase0/splits-and-preregistration` | `5388611` Phase 0.4: pre-register Phase A metrics, controls and go/no-go gate |
+| 19 | 2026-11-10 18:22 | 0.6 | CI: pytest on every push | — | `phase0/splits-and-preregistration` | `886f2a8` Phase 0.6: run the test suite on GitHub Actions |
 
 ## Status of planned steps
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
 | 0.1 merge to main | waiting for Adarsh's review | — | `stage1/atlas-loader`, `stage1/downstream-fusion` |
-| 0.2–0.6 | not started | — | |
-| A1–A5 | not started | — | |
+| 0.2 splits | done | `phase0/splits-and-preregistration` | `splits/atlas_splits.tsv` |
+| 0.3 held-out α | done | `phase0/splits-and-preregistration` | α = 0.55 |
+| 0.4 pre-registration | done | `phase0/splits-and-preregistration` | |
+| 0.5 licences | done (noted in roadmap) | — | |
+| 0.6 CI | done | `phase0/splits-and-preregistration` | GitHub Actions |
+| A1 subspace test | in progress | `phaseA/subspace-test` | |
+| A2–A5 | not started | — | |
 | B, C | not started | — | |
 
 ---
