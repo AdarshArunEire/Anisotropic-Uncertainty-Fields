@@ -35,12 +35,14 @@ order is kept.
 | 17 | 2026-11-10 18:21 | 0.3 | Shrinkage α fitted on train, scored on test | α = 0.55; test: raw −0.118, shrunk +0.155 [0.092, 0.220] nats/res/frame | `phase0/splits-and-preregistration` | `fe38372` Phase 0.3: held-out shrinkage alpha (train-fitted 0.55; test gain +0.155 nats) |
 | 18 | 2026-11-10 18:22 | 0.4 | Phase A pre-registration ([phaseA_preregistration.md](phaseA_preregistration.md)) | — | `phase0/splits-and-preregistration` | `5388611` Phase 0.4: pre-register Phase A metrics, controls and go/no-go gate |
 | 19 | 2026-11-10 18:22 | 0.6 | CI: pytest on every push | — | `phase0/splits-and-preregistration` | `886f2a8` Phase 0.6: run the test suite on GitHub Actions |
+| 20 | 2026-11-10 18:22 | housekeeping | Roadmap log for Phase 0 | — | `phase0/splits-and-preregistration` | `26f3e8e` Roadmap: log Phase 0 steps 0.2-0.6 |
+| 21 | 2026-11-10 18:24 | 0.1 | All work merged to `main` via [PR #1](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/1) (merge commit, so earlier hashes stay valid) | — | `main` | `d5b9841` Merge Stage 1 audit, downstream fusion test, and Phase 0 groundwork (#1) |
 
 ## Status of planned steps
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
-| 0.1 merge to main | waiting for Adarsh's review | — | `stage1/atlas-loader`, `stage1/downstream-fusion` |
+| 0.1 merge to main | done ([PR #1](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/1)) | `main` | includes stage1/* and phase0 branches |
 | 0.2 splits | done | `phase0/splits-and-preregistration` | `splits/atlas_splits.tsv` |
 | 0.3 held-out α | done | `phase0/splits-and-preregistration` | α = 0.55 |
 | 0.4 pre-registration | done | `phase0/splits-and-preregistration` | |
