@@ -213,3 +213,21 @@ def test_parse_ca_anisou(tmp_path):
     np.testing.assert_allclose(xyz, [1, 2, 3])
     np.testing.assert_allclose(u, [[0.1, 0.01, 0.02], [0.01, 0.2, 0.03], [0.02, 0.03, 0.3]])
     assert "10" not in parse_ca_anisou(pdb, "B")
+
+
+def test_splits_keep_homologues_together(tmp_path):
+    from auf.splits import assign_splits, atlas_homology_components
+
+    tsv = tmp_path / "info.tsv"
+    tsv.write_text(
+        "PDB\tECOD_ID\n"
+        "a_A\t1.1.1.1\n"
+        "b_A\t1.1.2.1, 2.5.1.1\n"   # links H-groups 1.1 and 2.5
+        "c_A\t2.5.3.3\n"
+        "d_A\t7.7.1.1\n"
+    )
+    comps = atlas_homology_components(tsv)
+    assert ["a_A", "b_A", "c_A"] in comps and ["d_A"] in comps
+    s = assign_splits(comps, giant=1.0)
+    assert s["a_A"] == s["b_A"] == s["c_A"]
+    assert assign_splits(comps, giant=1.0) == s  # deterministic
