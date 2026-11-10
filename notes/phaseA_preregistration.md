@@ -73,7 +73,8 @@ the experimental structure. Paired per protein.
 On the test split, primary settings:
 
 - **GO** if the val-chosen PAE source (or ANM) has
-  (i) mean C_10 with 95% CI lower bound > 2.0, **and**
+  (i) mean C_10 with 95% CI lower bound > 2.0 *[superseded by amendment 1,
+  see below]*, **and**
   (ii) in fusion, a paired improvement over **both** the oracle scalar and
   PAE-rigid-domains, on **both** RMSD and lDDT, with 95% CI excluding zero,
   better in >= 60% of test proteins.
@@ -87,4 +88,24 @@ the Phase A write-up is produced.
 
 ## Amendments
 
-(none)
+### 2026-11-10, amendment 1 (before any A2 data was collected)
+
+**Change.** Gate criterion (i) is replaced. Old: mean C_10 with 95% CI
+lower bound > 2.0. New: the per-protein ratio
+C_10(source) / C_10(pLDDT scalar) has a geometric mean over test proteins
+whose 95% bootstrap CI lower bound is > 1.5, where "pLDDT scalar" is the
+diagonal covariance with per-residue variance from pLDDT (the realistic
+scalar a user has). The oracle scalar (variance from the true error) is
+reported alongside but is not the reference for (i), since it already
+knows which residues are wrong.
+
+**Reason.** On the A1 trial (2 ATLAS proteins, simulation errors), a
+covariance with *no* coupling and *no* direction (per-residue variance
+only) reached C_10 of about 7-10: errors concentrate in flexible residues,
+so any source that knows which residues are flexible beats random by far
+more than 2x. The old threshold could not distinguish coupling from a
+scalar and was therefore meaningless as a test of coupling. Criterion (ii)
+(fusion vs oracle scalar and PAE rigid domains) is unchanged.
+
+**Status at time of amendment.** No AlphaFold error vectors (A2) had been
+collected and no A4 metric computed.
