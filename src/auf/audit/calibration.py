@@ -12,7 +12,7 @@ import numpy as np
 from scipy import stats
 
 __all__ = ["mahalanobis_sq", "chi2_calibration_test", "wishart_null_airm",
-           "CalibrationResult"]
+           "wishart_isotropic_null_airm", "CalibrationResult"]
 
 
 def mahalanobis_sq(residual: np.ndarray, sigma: np.ndarray) -> np.ndarray:
@@ -111,3 +111,33 @@ def wishart_null_airm(
     )
     draws = np.asarray(draws, dtype=float).reshape(n_draws, d, d)
     return airm_distance(np.broadcast_to(sigma, draws.shape), draws)
+
+
+def wishart_isotropic_null_airm(
+    n_eff: int,
+    d: int = 3,
+    n_draws: int = 2000,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
+    """Apparent anisotropy of a sample covariance whose truth is isotropic.
+
+    Sample covariances are never exactly isotropic: finite sampling spreads
+    the eigenvalues (Marchenko-Pastur). This draws ``S ~ W(I / n_eff, n_eff)``
+    and returns ``AIRM(S, isotropize(S))``, the anisotropy one would measure
+    from ``n_eff`` independent frames if the true covariance were a sphere.
+
+    This is the null for "is the observed anisotropy real". It is scale-free,
+    so it depends only on ``n_eff`` and ``d``, and an observed
+    ``AIRM(Sigma_hat, isotropize(Sigma_hat))`` can be compared with it
+    residue by residue to give a p-value.
+    """
+    from auf.audit.spd import airm_distance, isotropize
+
+    rng = np.random.default_rng() if rng is None else rng
+    if n_eff <= d:
+        raise ValueError("n_eff must exceed the dimension for a proper Wishart")
+    draws = stats.wishart.rvs(
+        df=n_eff, scale=np.eye(d) / n_eff, size=n_draws, random_state=rng
+    )
+    draws = np.asarray(draws, dtype=float).reshape(n_draws, d, d)
+    return airm_distance(draws, isotropize(draws))

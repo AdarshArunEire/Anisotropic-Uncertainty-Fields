@@ -34,6 +34,7 @@ signal.
 
 ```
 src/auf/audit/     Stage-1 library code
+src/auf/data/      ATLAS loader (download, superposition, covariances, n_eff)
 experiments/audit/ Runnable Stage-1 scripts
 notes/             Literature review, design notes
 results/           Generated figures and reports (not committed)
@@ -42,7 +43,24 @@ tests/             Unit tests
 
 ## Status
 
-Scaffold. Nothing measured yet.
+ATLAS loader written and validated (reproduces ATLAS's published RMSF at
+r >= 0.998). First pass of Q1 on 8 randomly drawn ATLAS entries: the
+anisotropy is directional and reproducible across replicas, well above a
+superposition-artifact control, so the Stage 1 kill criterion is not
+triggered. See [notes/stage1_q1_results.md](notes/stage1_q1_results.md).
+Q2 and Q3 need the published models' predictions and are not started.
+
+## Running
+
+```
+pip install -e ".[test,atlas]"
+pytest
+python experiments/audit/01_information_content.py            # downloads ~250 MB of ATLAS
+python experiments/audit/01_information_content.py 1ng6_A    # any ATLAS pdb_chain
+```
+
+ATLAS data are CC BY-NC 4.0. They are downloaded into `data/` and never
+committed; derived numbers in `notes/` cite the source.
 
 ## License
 

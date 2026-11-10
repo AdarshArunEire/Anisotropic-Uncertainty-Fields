@@ -8,6 +8,7 @@ from auf.audit.calibration import (
     mahalanobis_sq,
     chi2_calibration_test,
     wishart_null_airm,
+    wishart_isotropic_null_airm,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "mahalanobis_sq",
     "chi2_calibration_test",
     "wishart_null_airm",
+    "wishart_isotropic_null_airm",
 ]
