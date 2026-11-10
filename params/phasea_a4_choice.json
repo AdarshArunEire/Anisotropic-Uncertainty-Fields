@@ -1,0 +1,8 @@
+{
+ "chosen_pae": "pae_lowrank",
+ "chosen_on_val_gm_c10": {
+  "pae_reldisp": 16.02186941465286,
+  "pae_domains": 16.234572998809796,
+  "pae_lowrank": 16.72482502801534
+ }
+}
