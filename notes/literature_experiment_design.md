@@ -211,3 +211,31 @@ real AlphaFold errors across hundreds of proteins with random and heuristic
 baselines; a provable minimum-count bound. The probe should include an
 mRMR-on-ensemble baseline (ensemble sampled from the same prior), which covers
 both FPS 2.0's MI mode and Hays 2018.
+
+---
+
+## Learned / "black-box" pair scorers (searched 2026-11-10)
+
+Question: does a learned model already exist that takes a structure (or
+AlphaFold output) and scores residue pairs (x, y) for how useful measuring
+them is? Abstract/summary level; not yet read in full.
+
+| Work | What it scores | How | Relation to our idea |
+|---|---|---|---|
+| **Labelizer**, *Nat Commun* 2025 ([article](https://www.nature.com/articles/s41467-025-58602-y), [PMC12049551](https://pmc.ncbi.nlm.nih.gov/articles/PMC12049551), web server labelizer.org) | Per-residue **labelability** for fluorophores; pair FRET score from the two label scores + predicted FRET efficiency | Naive Bayes classifier on structure/sequence features, trained on 100+ proteins | **The learned score(x, y) already exists, for feasibility** (will the label attach, not perturb, give a usable FRET range). Does not score structural information. Natural feasibility filter for us, and a natural partner |
+| **Optimal Probes**, Mittal & Shukla, *J Phys Chem B* 2017, 2018; *Biophys J* 2017 ([GitHub wiki](https://www.github.com/ShuklaGroup/optimalProbes/wiki)) | Sets of DEER pairs that best capture the **slowest dynamics** | Markov state models from MD + genetic algorithm; maximise kinetic information, minimise correlation | Information-driven DEER selection from simulations (like Hays 2018). Needs MD + MSMs; picks beat pairs used in real experiments on β2AR, calmodulin, PepTSo |
+| **DEERFold**, 2025 | — | Authors *suggest* a neural network could optimise pair selection | Not done there |
+| **Amortised / deep adaptive Bayesian experimental design** (ML literature, e.g. Foster, Rainforth et al.; RL formulations, [arXiv 2306.10430](https://arxiv.org/pdf/2306.10430)) | Generic: a network outputs the next experiment | Policy trained by simulation to maximise expected information | **The method class of our "transformer ranker" exists in ML**; not found applied to choosing label pairs from AlphaFold |
+
+### Updated gap
+- Learned per-pair scores exist for **labelability** (Labelizer).
+  Information-driven selection exists from **simulations** (Optimal Probes,
+  Hays 2018, FPS 2.0). Amortised learned design exists **as an ML method**.
+- Not found: a learned model that, from **AlphaFold's output** (coords, PAE,
+  pLDDT), predicts the **structural value** of measuring each pair, with
+  redundancy handled, benchmarked on real AlphaFold errors. That combination
+  is the candidate contribution; each ingredient has precedent, so the
+  framing must be "AlphaFold-conditioned amortised design for label
+  placement", citing all of the above.
+- Practical: combine Labelizer-style feasibility (or Labelizer itself) with
+  our information score; the product would be "labelable *and* informative".
