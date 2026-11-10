@@ -43,14 +43,20 @@ order is kept.
 | 25 | 2026-11-10 18:29 | A2 | AlphaFold error-set builder; per-protein template-leak check | ~22% of candidates pass filters | `phaseA/subspace-test` | `069fde2` Phase A2: AlphaFold error-set builder (RCSB >= 2023, SIFTS, AFDB, PAE) |
 | 26 | 2026-11-10 18:30 | 0.4 | Amendment 2: AF model must predate release; mapping clarifications | — | `phaseA/subspace-test` | `cf3b9a2` Pre-registration amendment 2: per-protein template-leak check and mapping clarifications |
 | 27 | 2026-11-10 18:36 | A1 | A1 results ([phaseA1_subspace.md](phaseA1_subspace.md)) | C_10: MD coupling 30.3, ANM 20.7, ellipsoid 12.1, scalar 10.3; ANM directions good, spectrum off | `phaseA/subspace-test` | `b4cc3d7` Phase A1 results: coupled directions carry 3x the error of a scalar; ANM directions good, spectrum off |
+| 28 | 2026-11-10 19:24 | A2–A4 | Code: resumable A2 build, MMseqs2 splits, PAE→covariance recipes (`auf.phasea`), A3 fit, A4 capture + fusion + gate. Smoke-tested on 12 proteins with throwaway parameters before any real fit (numbers discarded; A3 grids were widened before that run, nothing changed after) | — | `phaseA/af-error-set` | `6da6fd3` Phase A2-A4 code: resumable A2 build, MMseqs2 splits, PAE->covariance recipes, A3 fit, A4 capture + fusion + gate |
+| 29 | 2026-11-10 19:32 | housekeeping | Phase A results committed instead of ignored | — | `phaseA/af-error-set` | `6fe0b4b` Commit Phase A results (reports, tables, figures); raw data stays local |
+| 30 | 2026-11-10 19:33 | merge | `phaseA/subspace-test` merged to `main` via [PR #2](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/2) (merge commit) | — | `main` | `1a6c975` Merge Phase A1 subspace test and A2 builder (#2) |
+| 31 | 2026-11-10 19:37 | housekeeping | All of `results/` committed; only large arrays ignored | — | `phaseA/af-error-set` | `a8b9641` Commit all results (reports, tables, figures); ignore only large arrays |
+| 32 | 2026-11-10 19:58 | A2 | AlphaFold error set rebuilt to the end of the 10,661 candidates ([manifest](../results/phaseA/afset_manifest.tsv), [splits](../splits/afset_splits.tsv)) | 1,282 proteins (1,248 X-ray, 34 cryo-EM; median 261 res, median pLDDT 95); train/val/test 743/273/266 — test below the ≥300 target | `phaseA/af-error-set` | `44e972e` Phase A2 rerun: 1,282 AlphaFold error proteins; MMseqs2 splits 743/273/266 |
+| 33 | 2026-11-10 20:02 | A4 | A4 figures (capture ratio, fusion gains) | — | `phaseA/af-error-set` | `59a1153` A4: capture-ratio and fusion-gain figures (dot + 95% CI) |
 
 ## Status of planned steps
 
-**Resume here (2026-11-10):** new session, branch from `phaseA/subspace-test`
-(not yet merged to `main`). Setup: `pip install -e ".[test,atlas]" gemmi`.
-Local data is gone; rebuild what a step needs with the committed scripts
-(`00_build_dataset.py` for ATLAS sets, ~30 min). Next: rerun A2, then A3
-(PAE → covariance recipes, frozen on train) and A4.
+**Current (2026-11-10, 20:00 UTC):** working on `phaseA/af-error-set`
+(branched from `phaseA/subspace-test`, which is now merged to `main` as PR #2).
+Setup: `pip install -e ".[test,atlas,phasea]"`; MMseqs2 for the splits
+(`apt install mmseqs2`). A2 done; A3 fit running; then A4 + gate. Stage-1
+`results/` are being regenerated (ATLAS rebuild) so they can be committed.
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
@@ -61,8 +67,9 @@ Local data is gone; rebuild what a step needs with the committed scripts
 | 0.5 licences | done (noted in roadmap) | — | |
 | 0.6 CI | done | `phase0/splits-and-preregistration` | GitHub Actions |
 | A1 subspace test | done | `phaseA/subspace-test` | C_10: MD coupling 30, ANM 21, per-residue 12, scalar 10 ([phaseA1_subspace.md](phaseA1_subspace.md)) |
-| A2 AlphaFold error set | interrupted (session out of resources) | `phaseA/subspace-test` | 281 accepted of 1,248 processed when stopped; nothing kept. Rerun `python3 experiments/phaseA/a2_build_af_error_set.py --target 1500 --workers 8` (deterministic, seed 0). Needs `pip install gemmi`. |
-| A3–A5 | not started | — | |
+| A2 AlphaFold error set | done | `phaseA/af-error-set` | 1,282 proteins; splits 743/273/266 (test below the ≥300 target: candidates ran out). `a2_build_af_error_set.py` then `a2_splits.py` |
+| A3 PAE → covariance | running (train only) | `phaseA/af-error-set` | `a3_fit_recipes.py` → `params/phasea_a3.json` |
+| A4–A5 | code ready, waiting for A3 | `phaseA/af-error-set` | `a4_alignment.py` |
 | B, C | not started | — | |
 
 ---
