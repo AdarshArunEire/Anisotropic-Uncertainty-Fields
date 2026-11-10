@@ -126,3 +126,53 @@ def test_wishart_null_rejects_degenerate_n_eff():
     rng = np.random.default_rng(11)
     with pytest.raises(ValueError):
         wishart_null_airm(random_spd(rng), n_eff=2)
+
+
+# --- directional metrics -------------------------------------------------
+
+from auf.audit.direction import (  # noqa: E402
+    direction_wins,
+    gaussian_loglik,
+    optimal_shape_power,
+    principal_axis_cos,
+    shape_power,
+    unit_trace,
+)
+
+
+def test_shape_power_endpoints():
+    rng = np.random.default_rng(20)
+    s = random_spd(rng, n=6)
+    np.testing.assert_allclose(shape_power(s, 1.0), unit_trace(s), atol=1e-10)
+    np.testing.assert_allclose(shape_power(s, 0.0), np.broadcast_to(np.eye(3) / 3, s.shape), atol=1e-10)
+
+
+def test_optimal_shape_power_recovers_overstated_anisotropy():
+    """A predictor with the right axes but squared elongation should get
+    alpha ~ 0.5: half of its (log) anisotropy is real."""
+    rng = np.random.default_rng(21)
+    truth = random_spd(rng, n=50)
+    pred = shape_power(truth, 2.0)
+    alpha, _ = optimal_shape_power(pred, truth)
+    assert abs(alpha - 0.5) < 0.06
+
+
+def test_direction_wins_ignores_magnitude():
+    rng = np.random.default_rng(22)
+    truth = random_spd(rng, n=50) * np.array([1.0, 0.5, 0.1])[None, None, :]
+    truth = truth @ np.swapaxes(truth, -1, -2)
+    assert direction_wins(100.0 * truth, truth).all()
+
+
+def test_principal_axis_cos_random_is_half():
+    rng = np.random.default_rng(23)
+    a, b = random_spd(rng, n=20000), random_spd(rng, n=20000)
+    assert abs(principal_axis_cos(a, b).mean() - 0.5) < 0.01
+
+
+def test_gaussian_loglik_is_maximised_by_true_covariance():
+    rng = np.random.default_rng(24)
+    s = random_spd(rng, n=10)
+    best = gaussian_loglik(s, s)
+    assert np.all(best > gaussian_loglik(isotropize(s), s))
+    assert np.all(best > gaussian_loglik(1.3 * s, s))

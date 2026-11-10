@@ -172,3 +172,44 @@ def test_isotropic_null_does_not_flag_isotropic_truth():
     null = wishart_isotropic_null_airm(n, n_draws=4000, rng=rng)
     p = (null[None, :] >= obs[:, None]).mean(axis=1)
     assert 0.03 < (p < 0.05).mean() < 0.08
+
+
+def test_tls_fit_recovers_rigid_body_u():
+    from auf.data.crystal import fit_tls, tls_design
+
+    rng = np.random.default_rng(30)
+    xyz = rng.normal(scale=10.0, size=(60, 3))
+    coef = rng.normal(size=21) * 0.01
+    coef[:6] = [0.2, 0.2, 0.2, 0.01, 0.0, 0.02]
+    flat = (tls_design(xyz) @ coef).reshape(60, 6)
+    u = np.zeros((60, 3, 3))
+    iu = (np.array([0, 1, 2, 0, 0, 1]), np.array([0, 1, 2, 1, 2, 2]))
+    u[:, iu[0], iu[1]] = flat
+    u[:, iu[1], iu[0]] = flat
+    np.testing.assert_allclose(fit_tls(xyz, u), u, atol=1e-10)
+
+
+def test_anm_rigid_modes_removed_and_psd():
+    from auf.data.anm import anm_covariance, anm_hessian
+
+    rng = np.random.default_rng(31)
+    ca = np.cumsum(rng.normal(scale=2.2, size=(40, 3)), axis=0)
+    w = np.linalg.eigvalsh(anm_hessian(ca, cutoff=20.0))
+    assert np.sum(np.abs(w) < 1e-8) == 6
+    assert np.all(np.linalg.eigvalsh(anm_covariance(ca, cutoff=20.0)) > 0)
+
+
+def test_parse_ca_anisou(tmp_path):
+    from auf.data.crystal import parse_ca_anisou
+
+    pdb = tmp_path / "x.pdb"
+    pdb.write_text(
+        "ATOM      2  CA  ALA A  10       1.000   2.000   3.000  1.00 10.00           C\n"
+        "ANISOU    2  CA  ALA A  10     1000   2000   3000    100    200    300       C\n"
+        "ATOM      9  CA  GLY B  10       9.000   9.000   9.000  1.00 10.00           C\n"
+    )
+    rec = parse_ca_anisou(pdb, "A")
+    xyz, u = rec["10"]
+    np.testing.assert_allclose(xyz, [1, 2, 3])
+    np.testing.assert_allclose(u, [[0.1, 0.01, 0.02], [0.01, 0.2, 0.03], [0.02, 0.03, 0.3]])
+    assert "10" not in parse_ca_anisou(pdb, "B")
