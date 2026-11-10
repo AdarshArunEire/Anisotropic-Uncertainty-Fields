@@ -1,0 +1,38 @@
+{
+  "n_proteins": 150,
+  "n_residues": 23480,
+  "rms_long_mid_short_A": [
+    0.971,
+    0.617,
+    0.383
+  ],
+  "long_over_short_quartiles": [
+    1.84,
+    2.33,
+    3.07
+  ],
+  "scalar_rms_A": 0.709,
+  "scalar_understates_long_axis_pct": 25.6,
+  "scalar_overstates_short_axis_x": 1.72,
+  "axis_angle_deg_median": {
+    "random": 60.0,
+    "anm": 37.9,
+    "other_replica": 26.3
+  },
+  "coverage_of_nominal_95": {
+    "ellipsoid": 0.918,
+    "sphere": 0.935
+  },
+  "calibrated_95_volume_A3_median": {
+    "ellipsoid": 19.3,
+    "sphere": 24.6
+  },
+  "sphere_over_ellipsoid_volume_quartiles": [
+    0.96,
+    1.17,
+    1.5
+  ],
+  "share_ellipsoid_smaller": 0.711,
+  "share_ellipsoid_1p5x_smaller": 0.251,
+  "share_ellipsoid_2x_smaller": 0.101
+}

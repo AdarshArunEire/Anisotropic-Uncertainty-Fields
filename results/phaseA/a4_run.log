@@ -1,0 +1,2 @@
+val geometric-mean C_10: {'pae_reldisp': 16.02, 'pae_domains': 16.23, 'pae_lowrank': 16.72} -> chosen pae_lowrank
+wrote 539 proteins to results/phaseA/a4_per_protein.json

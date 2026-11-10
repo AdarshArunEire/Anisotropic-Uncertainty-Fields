@@ -6,6 +6,9 @@ venv/
 .pytest_cache/
 data/*
 !data/.gitkeep
-results/*
-!results/.gitkeep
+# Results (reports, tables, figures) are committed; large arrays are not
+results/**/*.npz
+results/**/*.npy
+results/**/*.xtc
+results/**/*.dcd
 .DS_Store
