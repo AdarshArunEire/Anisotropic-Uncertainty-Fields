@@ -37,6 +37,11 @@ order is kept.
 | 19 | 2026-11-10 18:22 | 0.6 | CI: pytest on every push | — | `phase0/splits-and-preregistration` | `886f2a8` Phase 0.6: run the test suite on GitHub Actions |
 | 20 | 2026-11-10 18:22 | housekeeping | Roadmap log for Phase 0 | — | `phase0/splits-and-preregistration` | `26f3e8e` Roadmap: log Phase 0 steps 0.2-0.6 |
 | 21 | 2026-11-10 18:24 | 0.1 | All work merged to `main` via [PR #1](https://github.com/AdarshArunEire/Anisotropic-Uncertainty-Fields/pull/1) (merge commit, so earlier hashes stay valid) | — | `main` | `d5b9841` Merge Stage 1 audit, downstream fusion test, and Phase 0 groundwork (#1) |
+| 22 | 2026-11-10 18:24 | housekeeping | Roadmap log for merge | — | `phaseA/subspace-test` | `59da37e` Roadmap: log merge to main (PR #1) |
+| 23 | 2026-11-10 18:26 | A1 | Capture-ratio metric + subspace test script | — | `phaseA/subspace-test` | `ae67eaa` Phase A1: capture-ratio metric and subspace test on ATLAS replicas |
+| 24 | 2026-11-10 18:26 | 0.4 | Gate (i) now relative to pLDDT scalar; trial showed scalar ≈ 7–10x random | — | `phaseA/subspace-test` | `19e6564` Pre-registration amendment 1: capture gate relative to pLDDT scalar, not random |
+| 25 | 2026-11-10 18:29 | A2 | AlphaFold error-set builder; per-protein template-leak check | ~22% of candidates pass filters | `phaseA/subspace-test` | `069fde2` Phase A2: AlphaFold error-set builder (RCSB >= 2023, SIFTS, AFDB, PAE) |
+| 26 | 2026-11-10 18:30 | 0.4 | Amendment 2: AF model must predate release; mapping clarifications | — | `phaseA/subspace-test` | `cf3b9a2` Pre-registration amendment 2: per-protein template-leak check and mapping clarifications |
 
 ## Status of planned steps
 
@@ -48,8 +53,9 @@ order is kept.
 | 0.4 pre-registration | done | `phase0/splits-and-preregistration` | |
 | 0.5 licences | done (noted in roadmap) | — | |
 | 0.6 CI | done | `phase0/splits-and-preregistration` | GitHub Actions |
-| A1 subspace test | in progress | `phaseA/subspace-test` | |
-| A2–A5 | not started | — | |
+| A1 subspace test | done | `phaseA/subspace-test` | C_10: MD coupling 30, ANM 21, per-residue 12, scalar 10 ([phaseA1_subspace.md](phaseA1_subspace.md)) |
+| A2 AlphaFold error set | in progress | `phaseA/subspace-test` | target 1,500 proteins |
+| A3–A5 | not started | — | |
 | B, C | not started | — | |
 
 ---
