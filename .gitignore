@@ -6,14 +6,9 @@ venv/
 .pytest_cache/
 data/*
 !data/.gitkeep
-results/*
-!results/.gitkeep
-# Phase A outputs are small and committed so they can be read without rerunning
-!results/phaseA/
-results/phaseA/*
-!results/phaseA/*.md
-!results/phaseA/*.tsv
-!results/phaseA/*.json
-!results/phaseA/*.png
-!results/phaseA/afset_manifest.tsv
+# Results (reports, tables, figures) are committed; large arrays are not
+results/**/*.npz
+results/**/*.npy
+results/**/*.xtc
+results/**/*.dcd
 .DS_Store
