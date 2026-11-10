@@ -171,3 +171,43 @@ citing. SpinCenter: abstract only (bioRxiv rate-limited).
   strategies in a secondary analysis.
 - Second benchmark: DEERFold two-state targets, scored on reaching the
   other state.
+
+---
+
+## Additions (2026-11-10, pointed out by Adarsh)
+
+### Hays, Kieber, Li, Han, Columbus, Kasson, *Angew Chem* 2018 (57:17110; PMC6424112)
+"Refinement of highly flexible protein structures using simulation-guided
+spectroscopy." **Second piece of direct prior art for DEER**, missed by the
+first search.
+- Pairs chosen from an (undersampled, 2 μs) MD ensemble by **mRMR**: maximise
+  mutual information between each observable (Cα–Cα distance distribution)
+  and the conformation, minimise redundancy between observables. Same family
+  as FPS 2.0's mutual-information mode.
+- Prospective DEER on Opa60 (flexible outer-membrane protein): mRMR-chosen
+  pairs gave refined ensembles that predicted 8 held-out DEER pairs better
+  than spectroscopist-chosen pairs in 7/8; a second round with 3 more pairs
+  improved further. Manual picks land in mRMR's top 25% only 7% of the time.
+- No random baseline; no estimate of how many pairs are needed; no predicted
+  structure or confidence used (MD ensemble only).
+- Future work: explicit labels, forward-modelled spectra, choosing pairs to
+  discriminate mechanistic hypotheses.
+
+### Correction on FPS 2.0 (Dimura 2020)
+FPS 2.0 already **estimates how many FRET pairs are needed** to reach a target
+model uncertainty (the ⟨⟨RMSD⟩⟩ curve vs number of pairs, plus the
+rigid-body complexity rule). The "how many pairs" output is therefore **not
+new as a capability**. What may still be new about step 4 of the plan is
+narrower: a closed-form floor from the predicted model's own uncertainty
+(interlacing bound #pairs ≥ #{λ > 1} under a stated tolerance), with no
+sampling. Novelty claims must be framed against FPS 2.0 and Hays 2018.
+
+### Updated picture of the gap
+Uncertainty- or information-driven pair selection exists for FRET (FPS 2.0,
+sampled ensembles, ~a day) and DEER (Hays 2018, MD ensembles; Kazmier 2011,
+sequence heuristic still used by DEERFold). Not found so far: selection driven
+by AlphaFold's own PAE / calibrated covariance in closed form; a benchmark on
+real AlphaFold errors across hundreds of proteins with random and heuristic
+baselines; a provable minimum-count bound. The probe should include an
+mRMR-on-ensemble baseline (ensemble sampled from the same prior), which covers
+both FPS 2.0's MI mode and Hays 2018.
