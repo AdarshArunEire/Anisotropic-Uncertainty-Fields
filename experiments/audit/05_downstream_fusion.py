@@ -15,6 +15,9 @@ oracle. Priors compared, all with the same per-residue magnitude:
   ellipsoid_shrunk  same, shrunk to alpha = 0.74 (Stage-1 audit value)
   anm_ellipsoid   per-residue ANM shape, no learning
   joint_anm       full 3N x 3N ANM (residues move together), one global scale
+  joint_anm_matched  ANM couplings and shapes, but each residue rescaled to
+                  replica i's magnitude: isolates the value of ANM's
+                  *coupling structure* from its (poorer) per-residue magnitudes
   joint_md        full 3N x 3N from replica i (upper reference)
 
 Reported per setting (measurement density x noise), mean over proteins with
@@ -37,10 +40,17 @@ os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 import numpy as np  # noqa: E402
 from scipy import stats  # noqa: E402
 
-PRIORS = ["scalar", "ellipsoid", "ellipsoid_shrunk", "anm_ellipsoid", "joint_anm", "joint_md"]
+PRIORS = ["scalar", "ellipsoid", "ellipsoid_shrunk", "anm_ellipsoid", "joint_anm",
+          "joint_anm_matched", "joint_md"]
 ALPHA = 0.74
 SETTINGS = [(0.1, 0.5), (0.1, 2.0), (0.5, 0.5), (0.5, 2.0)]  # (pairs per residue, noise Å)
 REPLICA_PAIRS = [(0, 1), (2, 0)]
+
+
+def _rescale(cov: np.ndarray, target_tr: np.ndarray, own_tr: np.ndarray) -> np.ndarray:
+    """D cov D with D = per-residue sqrt(target/own): keeps correlations."""
+    d = np.repeat(np.sqrt(target_tr / own_tr), 3)
+    return cov * d[:, None] * d[None, :]
 
 
 def build_priors(train: np.ndarray, start_ca: np.ndarray) -> tuple[np.ndarray, dict]:
@@ -68,6 +78,8 @@ def build_priors(train: np.ndarray, start_ca: np.ndarray) -> tuple[np.ndarray, d
         "ellipsoid_shrunk": block_diag_3(shape_power(blocks, ALPHA) * tr),
         "anm_ellipsoid": block_diag_3(unit_trace(anm_blocks) * tr),
         "joint_anm": anm * anm_scale + 1e-3 * np.eye(3 * n),
+        "joint_anm_matched": _rescale(anm, np.trace(blocks, axis1=-2, axis2=-1),
+                                      np.trace(anm_blocks, axis1=-2, axis2=-1)) + 1e-3 * np.eye(3 * n),
         "joint_md": full,
     }
 
@@ -208,6 +220,8 @@ def main() -> None:
         lines.append(f"  ellipsoid vs scalar (RMSE gain):        {paired('ellipsoid', 'scalar')}")
         lines.append(f"  shrunk ellipsoid vs scalar:             {paired('ellipsoid_shrunk', 'scalar')}")
         lines.append(f"  joint ANM vs best per-residue ellipsoid: {paired('joint_anm', 'ellipsoid_shrunk')}")
+        lines.append(f"  joint ANM (MD magnitudes) vs shrunk ell: {paired('joint_anm_matched', 'ellipsoid_shrunk')}")
+        lines.append(f"  joint MD vs joint ANM (MD magnitudes):  {paired('joint_md', 'joint_anm_matched')}")
         lines.append(f"  joint MD vs joint ANM:                  {paired('joint_md', 'joint_anm')}")
         lines.append("")
     report = "\n".join(lines)
