@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["anm_hessian", "anm_covariance"]
+__all__ = ["anm_hessian", "anm_covariance", "anm_covariance_full"]
 
 
 def anm_hessian(ca: np.ndarray, cutoff: float = 15.0, gamma: float = 1.0) -> np.ndarray:
@@ -30,16 +30,19 @@ def anm_hessian(ca: np.ndarray, cutoff: float = 15.0, gamma: float = 1.0) -> np.
     return h.transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
 
 
-def anm_covariance(ca: np.ndarray, cutoff: float = 15.0, n_zero: int = 6) -> np.ndarray:
-    """Per-residue 3x3 ANM covariance blocks, (N, 3, 3), arbitrary units.
-
-    Pseudo-inverse of the Hessian with the six rigid-body modes removed.
-    """
+def anm_covariance_full(ca: np.ndarray, cutoff: float = 15.0, n_zero: int = 6) -> np.ndarray:
+    """Full 3N x 3N ANM covariance (pseudo-inverse Hessian, rigid modes removed)."""
     h = anm_hessian(ca, cutoff)
     w, v = np.linalg.eigh(h)
     w, v = w[n_zero:], v[:, n_zero:]
     if np.any(w <= 1e-8):
         raise ValueError("ANM network has extra zero modes; increase cutoff")
+    return (v / w) @ v.T
+
+
+def anm_covariance(ca: np.ndarray, cutoff: float = 15.0, n_zero: int = 6) -> np.ndarray:
+    """Per-residue 3x3 ANM covariance blocks, (N, 3, 3), arbitrary units."""
+    full = anm_covariance_full(ca, cutoff, n_zero)
     n = len(ca)
-    vr = v.reshape(n, 3, -1)
-    return np.einsum("aik,ajk,k->aij", vr, vr, 1.0 / w)
+    idx = np.arange(n)
+    return full.reshape(n, 3, n, 3)[idx, :, idx, :]

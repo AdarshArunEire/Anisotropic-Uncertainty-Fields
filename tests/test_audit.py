@@ -176,3 +176,48 @@ def test_gaussian_loglik_is_maximised_by_true_covariance():
     best = gaussian_loglik(s, s)
     assert np.all(best > gaussian_loglik(isotropize(s), s))
     assert np.all(best > gaussian_loglik(1.3 * s, s))
+
+
+# --- downstream fusion ----------------------------------------------------
+
+from auf.audit.fusion import block_diag_3, fuse_distances, posterior_blocks  # noqa: E402
+
+
+def _toy_structure(rng, n=12):
+    return np.cumsum(rng.normal(scale=3.0, size=(n, 3)), axis=0)
+
+
+def test_fusion_ignores_useless_data():
+    rng = np.random.default_rng(40)
+    mu = _toy_structure(rng)
+    prior = block_diag_3(random_spd(rng, n=len(mu)) * 0.1)
+    pairs = np.array([[0, 5], [2, 9]])
+    d = np.linalg.norm(mu[pairs[:, 0]] - mu[pairs[:, 1]], axis=-1) + 3.0
+    x, cov = fuse_distances(mu, prior, pairs, d, noise_sd=1e4)
+    np.testing.assert_allclose(x, mu, atol=1e-5)
+    np.testing.assert_allclose(cov, prior, atol=1e-6)
+
+
+def test_fusion_matches_exact_distances_with_tiny_noise():
+    rng = np.random.default_rng(41)
+    mu = _toy_structure(rng)
+    truth = mu + rng.normal(scale=0.3, size=mu.shape)
+    pairs = np.array([[0, 5], [2, 9], [3, 11], [1, 7]])
+    d = np.linalg.norm(truth[pairs[:, 0]] - truth[pairs[:, 1]], axis=-1)
+    x, _ = fuse_distances(mu, block_diag_3(np.broadcast_to(0.1 * np.eye(3), (12, 3, 3))), pairs, d, 1e-3)
+    fit = np.linalg.norm(x[pairs[:, 0]] - x[pairs[:, 1]], axis=-1)
+    np.testing.assert_allclose(fit, d, atol=1e-3)
+
+
+def test_fusion_batches_and_blocks():
+    rng = np.random.default_rng(42)
+    mu = _toy_structure(rng)
+    prior = block_diag_3(random_spd(rng, n=len(mu)) * 0.1)
+    pairs = np.array([[0, 5], [2, 9]])
+    d = np.linalg.norm(mu[pairs[:, 0]] - mu[pairs[:, 1]], axis=-1)
+    x, cov = fuse_distances(mu, prior, pairs, np.stack([d, d + 0.5, d - 0.5]), 0.5)
+    assert x.shape == (3, 12, 3) and cov.shape == (3, 36, 36)
+    blocks = posterior_blocks(cov)
+    assert blocks.shape == (3, 12, 3, 3)
+    # Unmeasured residues keep their prior block exactly.
+    np.testing.assert_allclose(blocks[0, 4], prior[12:15, 12:15], atol=1e-10)
