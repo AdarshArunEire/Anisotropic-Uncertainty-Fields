@@ -221,3 +221,31 @@ def test_fusion_batches_and_blocks():
     assert blocks.shape == (3, 12, 3, 3)
     # Unmeasured residues keep their prior block exactly.
     np.testing.assert_allclose(blocks[0, 4], prior[12:15, 12:15], atol=1e-10)
+
+
+# --- subspace capture -----------------------------------------------------
+
+from auf.audit.subspace import capture_ratio, project_out_rigid, rigid_basis  # noqa: E402
+
+
+def test_rigid_basis_spans_rigid_motions():
+    rng = np.random.default_rng(50)
+    x = rng.normal(scale=5.0, size=(20, 3))
+    q = rigid_basis(x)
+    assert q.shape == (60, 6)
+    w = np.array([0.01, -0.02, 0.03])
+    moved = (x - x.mean(0)) + np.cross(w, x - x.mean(0)) + np.array([1.0, 2.0, 3.0])
+    delta = (moved - (x - x.mean(0))).ravel()
+    np.testing.assert_allclose(project_out_rigid(x, delta), 0.0, atol=1e-10)
+
+
+def test_capture_ratio_random_is_one_and_aligned_is_large():
+    rng = np.random.default_rng(51)
+    n = 30
+    x = rng.normal(scale=5.0, size=(n, 3))
+    a = rng.normal(size=(3 * n, 3 * n))
+    cov = a @ a.T
+    rand = capture_ratio(cov, rng.normal(size=(4000, 3 * n)), ks=(10,), rigid_ref=x)[10]
+    assert abs(rand.mean() - 1.0) < 0.05
+    top = np.linalg.eigh(project_out_rigid(x, cov))[1][:, -1]
+    assert capture_ratio(cov, top, ks=(10,), rigid_ref=x)[10] > 0.99 * (3 * n - 6) / 10
