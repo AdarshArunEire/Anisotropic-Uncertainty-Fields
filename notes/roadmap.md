@@ -89,7 +89,13 @@ Next, in order:
    use it. Measure the ceiling: estimate M = E[W^1/2 e eᵀ W^1/2 | AF outputs]
    on train and report how much of the best achievable capture PAE / ANM
    reach on test.
-4. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
+4. **Tolerance-whitened factors and measurement floor** (plan change
+   2026-11-10c): Λ = T^-1/2 P T^-1/2 for a stated tolerance T; factors with
+   λ > 1 need data; Cauchy interlacing gives #pairs ≥ #{λ > 1} (linear model).
+   Test on the A2 set: floor k vs greedy count k′ to reach the tolerance
+   (k′ ≥ k must hold; does k predict k′?). Also AIRM-geodesic calibration
+   toward M (t fitted on train) and an AIRM-step stopping rule.
+5. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
    datasets, BMRB, PRIDE) for a replay test.
 Decide after step 2 whether to continue (cheap, decisive).
 
@@ -134,6 +140,23 @@ it, so the ceiling is measurable. Related fields: goal-oriented optimal
 experimental design, likelihood-informed subspaces, active subspaces.
 Headline outcomes for the probe: lDDT-Cα and state-call confidence; RMSD
 secondary (to be fixed in prereg amendment 2 before running).
+
+**2026-11-10c (tolerance-whitened factors, measurement floor).** Choosing the
+identity of the whitening is choosing the question. With a lab-stated
+tolerance covariance T (e.g. pocket to ±1 Å, or the open/closed coordinate
+to ±2 Å), factors are the eigenvectors of Λ = T^-1/2 P T^-1/2 (principal axes
+of the AIRM log map Log_T(P)); λ > 1 means more uncertain than tolerated.
+Each distance measurement is a rank-1 downdate of the whitened covariance, so
+by Cauchy interlacing λ_i(after m) ≥ λ_{i+m}(before), hence at least
+#{λ > 1} measurements are needed to reach the tolerance: a floor computable
+from AlphaFold alone (exact in the linearised Gaussian model; reproduces the
+6·(bodies − 1) rigid-body count as a special case). The greedy planner gives
+the achieved count k′, so k′/k measures near-optimality. Companions:
+calibrate P along the AIRM geodesic P^1/2 (P^-1/2 M P^-1/2)^t P^1/2 (t on
+train; the curved version of Stage-1 shrinkage), and stop when the AIRM step
+on the goal subspace becomes small. Caveats: linearisation and heavy tails
+can make the true count larger; the floor is only as good as the calibration
+of P. Novelty to be checked by a literature search before any claim.
 
 ---
 
