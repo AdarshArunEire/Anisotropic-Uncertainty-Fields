@@ -166,6 +166,71 @@ def _load_params(args) -> dict:
     return params
 
 
+def figures(res, chosen, split="test"):
+    """Dot + 95% CI charts: capture ratio vs pLDDT scalar, and fusion gains."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    blue, orange, gray, ink2, grid, surf = ("#2a78d6", "#eb6834", "#8a8984", "#52514e",
+                                            "#e4e3df", "#fcfcfb")
+    plt.rcParams.update({
+        "figure.facecolor": surf, "axes.facecolor": surf, "axes.edgecolor": grid,
+        "axes.labelcolor": ink2, "xtick.color": ink2, "ytick.color": ink2,
+        "font.size": 9, "axes.spines.top": False, "axes.spines.right": False,
+        "axes.grid": True, "grid.color": grid, "grid.linewidth": 0.6})
+    rs = [r for r in res if r["split"] == split]
+
+    def color(name):
+        return orange if name == chosen else gray if name in CONTROLS + [
+            "random", "random_rotation", "plddt_scalar"] else blue
+
+    def dotci(ax, names, stats, ref=None):
+        for y, (n, (m, lo, hi)) in enumerate(zip(names, stats)):
+            c = color(n)
+            ax.plot([lo, hi], [y, y], color=c, lw=2, solid_capstyle="round")
+            ax.plot(m, y, "o", ms=8, color=c, mec=surf, mew=2)
+        ax.set_yticks(range(len(names)))
+        ax.set_yticklabels([n + (" (val-chosen)" if n == chosen else "") for n in names])
+        ax.invert_yaxis()
+        ax.grid(axis="y", visible=False)
+        for r in ref or []:
+            ax.axvline(r[0], color=ink2, lw=1, ls=r[1], zorder=0)
+
+    names = SOURCES + CONTROLS + ["random"]
+    stats = [_boot([r["caps"][f"core|{n}"]["10"] / r["caps"]["core|plddt_scalar"]["10"]
+                    for r in rs], _gmean) for n in names]
+    order = np.argsort([-s[0] for s in stats])
+    fig, ax = plt.subplots(figsize=(6.4, 3.6))
+    dotci(ax, [names[i] for i in order], [stats[i] for i in order],
+          ref=[(1.0, "-"), (1.5, "--")])
+    ax.set_xscale("log")
+    ax.set_xlabel("C_10 / C_10(pLDDT scalar), geometric mean over proteins (95% CI)")
+    fig.suptitle(f"Share of AlphaFold error in each source's top 10 directions, relative to "
+                 f"the pLDDT scalar\n({split}, n={len(rs)}; solid = pLDDT, dashed = gate 1.5)",
+                 fontsize=9, x=0.01, ha="left")
+    fig.tight_layout()
+    fig.savefig(OUT / f"a4_capture_{split}.png", dpi=200)
+    plt.close(fig)
+
+    fnames = [n for n in rs[0]["fus"] if n != "_base"]
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.6), sharey=True)
+    for ax, k, lab, mult in ((axes[0], 0, "Cα RMSD removed (Å)", 1.0),
+                             (axes[1], 1, "lDDT-Cα gained (x100)", 100.0)):
+        st = [_boot([mult * r["fus"][n][k] for r in rs]) for n in fnames]
+        if k == 0:
+            order = np.argsort([-s[0] for s in st])
+        dotci(ax, [fnames[i] for i in order], [st[i] for i in order], ref=[(0.0, "-")])
+        ax.set_xlabel(lab)
+    axes[1].tick_params(labelleft=False)
+    fig.suptitle(f"Fusion with sparse distances: gain over the AlphaFold model "
+                 f"({split}, n={len(rs)}, mean, 95% CI)", fontsize=9, x=0.01, ha="left")
+    fig.tight_layout()
+    fig.savefig(OUT / f"a4_fusion_{split}.png", dpi=200)
+    plt.close(fig)
+
+
 def summarize(args):
     params = _load_params(args)
     res = json.loads((OUT / "a4_per_protein.json").read_text())
@@ -256,6 +321,9 @@ def summarize(args):
     go = any(verdict.values())
     lines += ["", f"**Primary-set verdict: {'GO' if go else 'NO-GO on the primary set'}** "
               "(PARTIAL requires the ATLAS/MD secondary set, reported separately).", ""]
+    for split in ("val", "test"):
+        figures(res, chosen, split)
+    lines += ["![capture](a4_capture_test.png)", "", "![fusion](a4_fusion_test.png)", ""]
     (OUT / "a4_report.md").write_text("\n".join(lines))
     print("\n".join(lines))
 
