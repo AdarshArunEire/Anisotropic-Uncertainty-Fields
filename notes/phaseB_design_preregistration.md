@@ -58,3 +58,26 @@ and for AF error > 2 Å (subgroup, not part of the criterion).
 
 If greedy_pae beats random but not greedy_scalar, the benefit comes from the
 selection algorithm and pLDDT, not from coupling, and is reported that way.
+
+## Amendments
+
+### 2026-11-10, amendment 1 (before any selection result was computed)
+
+**Added strategies** after reading the prior art
+([literature_experiment_design.md](literature_experiment_design.md)):
+- **heuristic_deer**: the Kazmier 2011 / DEERFold rule. Candidates restricted
+  to residues in helices or strands (DSSP on the AF model) and exposed; pairs
+  > 15 Å apart; chosen greedily to maximise sequence separation while
+  covering each pair of secondary-structure elements at most once.
+- **ensemble_fps**: FPS 2.0-style. 200 conformers sampled from the same prior
+  covariance as greedy_pae; greedy forward choice of the pair that most
+  reduces the ensemble-averaged expected RMSD.
+
+**Success criterion extended:** greedy_pae must also beat heuristic_deer
+(same paired test). Beating ensemble_fps is reported but not required, since
+it shares greedy_pae's prior; the comparison measures closed form vs sampling
+at their respective costs.
+
+**Secondary:** all strategies with the feasibility filter (exposed, helix or
+strand, > 15 Å). **Second benchmark (separate pre-registration before it
+runs):** DEERFold's two-state targets, outcome = reaching the other state.
