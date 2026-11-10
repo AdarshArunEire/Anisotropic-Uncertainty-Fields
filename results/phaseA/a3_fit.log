@@ -1,0 +1,7 @@
+743 train proteins; pLDDT table: 41:88.31, 56:22.79, 66:12.54, 73:9.94, 78:9.45, 83:8.40, 88:5.52, 93:3.30, 98:1.75
+pae_lowrank    params=[80, 0.3] scale=0.511 ll/dim=-0.705
+pae_domains    params=[2.0, 0.1] scale=0.633 ll/dim=-0.778
+anm            params=[] scale=30 ll/dim=-0.845
+anm_recal      params=[0.75] scale=15.5 ll/dim=-0.852
+plddt_scalar   params=[] scale=0.92 ll/dim=-0.943
+pae_reldisp    params=[] scale=1.28e+05 ll/dim=-3.801
