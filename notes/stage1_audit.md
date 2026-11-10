@@ -174,3 +174,17 @@ model that is anisotropic everywhere is wrong in the floppy third.
    crystal forms, ligands, labs).
 3. Held-out-protein α, and residue-level models of *when* to trust
    anisotropy (rigid vs flexible).
+
+## Rerun note (2026-11-10, 20:46 UTC)
+
+Results regenerated and now committed (`results/02_audit/`,
+`results/04_physical_units.json`, `results/06_heldout_alpha.json`; entry lists
+in `manifests/`). The random-150 numbers reproduce exactly (72% [69, 75] vs
+32% [30, 35]; 132/150; median ellipsoid region 17% smaller; axis error
+26° / 38° / 60°; held-out α gain +0.155 [0.092, 0.220]). The high-resolution
+crystal draw had to be reconstructed (`experiments/audit/00b_highres_entries.py`;
+the original list was lost) and gives **104** proteins with usable ANISOU
+instead of 99. R4 conclusions are unchanged: TLS + MD shape beats TLS + scalar
+in 24/104 (was 23/99), TLS + ANM shape in 31/104 (was 28/99); MD beats scalar
+against crystal in 7% of residues, ANM in 20%. The R4 table above keeps the
+original numbers.
