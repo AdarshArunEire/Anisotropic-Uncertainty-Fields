@@ -7,6 +7,39 @@ if a later gate fails.
 Notation: N residues; a "direction source" is any 3N x 3N covariance whose
 top eigenvectors claim to say *which way* a structure is wrong or moves.
 
+
+## Log (done, in order)
+
+Times are UTC commit times. The first four commits were re-authored on
+2026-11-10, which reset their timestamps to 17:16–17:17; their original
+order is kept.
+
+| # | Date / time (UTC) | Step | What happened | Headline result | Branch | Commit |
+|---|---|---|---|---|---|---|
+| 1 | 2026-11-10 16:58 | setup | Repository created on GitHub | — | `main` | `da67d1b` Initial commit |
+| 2 | 2026-11-10 17:16 | Stage 1 scaffold | SPD primitives, calibration tests, Wishart null imported from handoff tarball | 15 tests pass | `stage1/atlas-loader` | `cd95af5` Import Stage 1 scaffold: SPD primitives, calibration tests, Wishart null |
+| 3 | 2026-11-10 17:16 | Stage 1 Q1 | ATLAS loader (download, joint superposition, per-residue covariance, n_eff); Q1 first pass on 8 proteins | RMSF matches ATLAS r >= 0.998; direction reproducible 81% vs 27% control | `stage1/atlas-loader` | `d3bec63` Add ATLAS loader and run Q1 on real data |
+| 4 | 2026-11-10 17:16 | housekeeping | CLAUDE.md: branch naming, commit identity, test command | — | `stage1/atlas-loader` | `5c30aed` Add CLAUDE.md: branch naming, commit identity, test command |
+| 5 | 2026-11-10 17:17 | housekeeping | Co-Authored-By trailer turned off | — | `stage1/atlas-loader` | `3908d36` Turn off Co-Authored-By trailer in project settings |
+| 6 | 2026-11-10 17:27 | Stage 1 audit | Dataset builder, ANM baseline, crystal ANISOU + TLS, direction-vs-amount metrics | — | `stage1/atlas-loader` | `97c486f` Add strong-audit pipeline: dataset builder, ANM baseline, crystal ANISOU + TLS, directional metrics |
+| 7 | 2026-11-10 17:40 | Stage 1 audit | Results in physical units | Ellipsoid region 17% smaller than sphere (median); axis error 26° replica / 38° ANM / 60° random | `stage1/atlas-loader` | `8bb03c5` Add physical-units view of the audit (Å, degrees, coverage, volume) |
+| 8 | 2026-11-10 17:45 | Stage 1 audit | Full audit, 150 random proteins + 99 with crystal ANISOU ([stage1_audit.md](stage1_audit.md)) | Direction real (72% vs 32% control); raw anisotropy overconfident; ANM closes 47%; MD ≠ crystal (rigid body) | `stage1/atlas-loader` | `962b34f` Stage 1 audit results: 150 random ATLAS proteins + 99 with crystal ANISOU |
+| 9 | 2026-11-10 17:59 | downstream | Fusion benchmark (sparse distances + prior covariance) | — | `stage1/downstream-fusion` | `9c5ce43` Add downstream fusion test: distance data + prior covariance |
+| 10 | 2026-11-10 18:00 | housekeeping | Project goal and honesty bar in CLAUDE.md | — | `stage1/downstream-fusion` | `db258c2` CLAUDE.md: record project goal and honesty bar |
+| 11 | 2026-11-10 18:05 | downstream | Fairness control: ANM coupling at MD magnitudes | — | `stage1/downstream-fusion` | `28a910a` Fusion test: add ANM couplings at MD per-residue magnitudes |
+| 12 | 2026-11-10 18:10 | literature | Review of coupling priors for data fusion ([literature_coupling.md](literature_coupling.md)) | Benchmark, calibration, PAE→covariance appear open; DynaProt/BackFlip-2 already predict coupling | `stage1/downstream-fusion` | `0cb9c13` Add literature review on coupling priors for data fusion |
+| 13 | 2026-11-10 18:11 | downstream | Fusion results, 40 proteins ([downstream_fusion.md](downstream_fusion.md)) | Coupling removes 25% of error vs 4–5% per-residue; ANM coupling 6%; all priors overconfident | `stage1/downstream-fusion` | `9b871a3` Downstream fusion results: coupling matters, per-residue anisotropy does not |
+| 14 | 2026-11-10 18:18 | planning | Roadmap agreed (this file) | — | `stage1/downstream-fusion` | `26b4130` Add roadmap: phases 0/A/B/C with gates, controls and order |
+
+## Status of planned steps
+
+| Step | Status | Branch | Notes |
+|---|---|---|---|
+| 0.1 merge to main | waiting for Adarsh's review | — | `stage1/atlas-loader`, `stage1/downstream-fusion` |
+| 0.2–0.6 | not started | — | |
+| A1–A5 | not started | — | |
+| B, C | not started | — | |
+
 ---
 
 ## Phase 0: Ground rules and housekeeping (before any new result)

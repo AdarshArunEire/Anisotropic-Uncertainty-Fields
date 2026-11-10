@@ -21,6 +21,22 @@ That raises the bar on honesty, it does not lower it:
 - Prefer experiments that decide practical value cheaply before expensive
   ones. Never tune or select to make a result look better.
 
+## Roadmap and log (keep current)
+`notes/roadmap.md` is the canonical record of what was done and what is next.
+- After every commit that produces a result, adds a capability, or changes
+  the plan, add a row to its **Log** table: running number, UTC date/time
+  (`git log -1 --format=%ad --date=format:'%Y-%m-%d %H:%M'`), roadmap step,
+  what happened, headline result (numbers, or "—"), branch, and short hash +
+  commit subject. Rows stay in chronological order; never rewrite old rows
+  except to fix a factual error (and say so in the row).
+- Update the **Status of planned steps** table when a step starts, finishes,
+  or is skipped, with the branch it lives on.
+- If history is rewritten (rebase, re-author), update the affected hashes
+  and note it at the top of the Log.
+- Add the log row in a follow-up commit if needed (a commit cannot contain
+  its own hash); the follow-up commit itself does not need a row.
+- Plan changes go in the plan sections, dated, not silently edited.
+
 ## Branches
 Give every new branch a short descriptive name of the form
 `<stage>/<what-it-does>`, for example `stage1/atlas-loader` or
