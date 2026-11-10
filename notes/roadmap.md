@@ -82,7 +82,14 @@ Next, in order:
    fusion so lDDT is not damaged.
 2. Build baselines heuristic_deer and ensemble_fps; write the probe script;
    run on the 266 test proteins (~30–60 min CPU).
-3. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
+3. **Goal-weighted uncertainty** (core object, see plan change 2026-11-10b):
+   implement W options (overall/local lDDT-like, region, single quantity,
+   which-state), the factors of P^1/2 W P^1/2, and the experiment-aware gain
+   W^1/2 P Hᵀ(HPHᵀ+R)⁻¹HP W^1/2; selection and the "how many pairs" curve
+   use it. Measure the ceiling: estimate M = E[W^1/2 e eᵀ W^1/2 | AF outputs]
+   on train and report how much of the best achievable capture PAE / ANM
+   reach on test.
+4. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
    datasets, BMRB, PRIDE) for a replay test.
 Decide after step 2 whether to continue (cheap, decisive).
 
@@ -113,6 +120,20 @@ conformational change), with the *fitted* PAE rigid-domain prior as the
 control and local geometry restraints in the fusion, since the post hoc A4b
 shows coupled priors roughly double the error removed there while every
 prior lowers lDDT.
+
+**2026-11-10b (goal-weighted uncertainty).** The object to build is not plain
+uncertainty P but goal-weighted uncertainty: factors of P^1/2 W P^1/2, i.e.
+directions maximising (importance vᵀWv) / (current knowledge vᵀP⁻¹v), where W
+encodes what the lab cares about (overall/local accuracy, a region, one
+quantity, which state). With a measurement model H, the expected gain matrix
+W^1/2 P Hᵀ(HPHᵀ+R)⁻¹HP W^1/2 gives which pairs (eigen-directions it can
+resolve) and how many (its trace vs number of pairs). Plain uncertainty is the
+special case W = I. The best achievable factors are the top eigenvectors of
+M = E[W^1/2 e eᵀ W^1/2 | AF outputs]; any PAE/ANM/learned matrix approximates
+it, so the ceiling is measurable. Related fields: goal-oriented optimal
+experimental design, likelihood-informed subspaces, active subspaces.
+Headline outcomes for the probe: lDDT-Cα and state-call confidence; RMSD
+secondary (to be fixed in prereg amendment 2 before running).
 
 ---
 
