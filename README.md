@@ -43,20 +43,27 @@ tests/             Unit tests
 
 ## Status
 
-ATLAS loader written and validated (reproduces ATLAS's published RMSF at
-r >= 0.998). First pass of Q1 on 8 randomly drawn ATLAS entries: the
-anisotropy is directional and reproducible across replicas, well above a
-superposition-artifact control, so the Stage 1 kill criterion is not
-triggered. See [notes/stage1_q1_results.md](notes/stage1_q1_results.md).
-Q2 and Q3 need the published models' predictions and are not started.
+Stage 1 audit run on 150 random ATLAS proteins plus 99 with crystal ANISOU.
+Full write-up: [notes/stage1_audit.md](notes/stage1_audit.md).
+
+- Anisotropy is real and reproducible across MD replicas (kill criterion
+  not triggered), but worth something only after shrinkage toward isotropy.
+- A one-parameter elastic network gets ~47% of the way from scalar to the
+  replica ceiling, a baseline neither published model reports.
+- MD direction does not match experimental crystal anisotropy, which is
+  mostly whole-molecule rigid-body motion.
+
+Q2/Q3 need the published models' predictions and are not started.
 
 ## Running
 
 ```
 pip install -e ".[test,atlas]"
 pytest
-python experiments/audit/01_information_content.py            # downloads ~250 MB of ATLAS
-python experiments/audit/01_information_content.py 1ng6_A    # any ATLAS pdb_chain
+python experiments/audit/00_build_dataset.py --n 150   # ~30 min, raw data deleted as it goes
+python experiments/audit/02_audit.py
+python experiments/audit/03_figures.py
+python experiments/audit/04_physical_units.py
 ```
 
 ATLAS data are CC BY-NC 4.0. They are downloaded into `data/` and never

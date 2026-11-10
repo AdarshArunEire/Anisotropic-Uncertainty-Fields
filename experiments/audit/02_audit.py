@@ -225,7 +225,7 @@ def main() -> None:
     rows = []
     for f in main_files:
         with np.load(f) as z:
-            rows.append(measure(dict(z), rng, args.control_frames))
+            rows.append(measure(dict(z), rng, args.control_frames) | {"set": "random"})
     seen = {r["pdb_chain"] for r in rows}
     extra = []
     if Path(args.crystal_extra).exists():
@@ -233,7 +233,7 @@ def main() -> None:
             if f.stem in seen:
                 continue
             with np.load(f) as z:
-                extra.append(measure(dict(z), rng, args.control_frames))
+                extra.append(measure(dict(z), rng, args.control_frames) | {"set": "highres"})
     cryst = [r for r in rows + extra if "R4_n" in r]
 
     L = []

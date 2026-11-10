@@ -43,9 +43,12 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--src", default="results/02_audit/per_protein.json")
     p.add_argument("--out", default="notes/figures")
+    p.add_argument("--entries", default="data/audit/entries.txt",
+                   help="the random draw; panels A and B use only these")
     args = p.parse_args()
     rows = json.loads(Path(args.src).read_text())
-    main_rows = [r for r in rows if "R1_win" in r]
+    drawn = set(Path(args.entries).read_text().split())
+    main_rows = [r for r in rows if r["pdb_chain"] in drawn]
     cryst = [r for r in rows if "R4_n" in r]
     rng = np.random.default_rng(0)
     out = Path(args.out)
@@ -61,7 +64,7 @@ def main() -> None:
           ["isotropic truth\n(artifact control)", "MD replicas"],
           [INK2, BLUE], rng)
     ax.set_ylim(0, 1)
-    ax.set_title("A. Direction reproduces across MD replicas\n"
+    ax.set_title(f"A. Direction reproduces across MD replicas ({len(main_rows)} proteins)\n"
                  "share of residues where Σᵢ beats its scalar at predicting Σⱼ",
                  loc="left", fontsize=9)
 
