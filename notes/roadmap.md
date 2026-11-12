@@ -60,44 +60,30 @@ order is kept.
 | 42 | 2026-11-10 21:31 | B probe | Pair-selection strategies (`auf.design`) with tests | greedy first pick matches brute force | `phaseB/experiment-design-probe` | `4ed1da2` Phase B probe: pair-selection strategies (random, pLDDT, greedy variance reduction) with tests |
 | 43 | 2026-11-10 21:40 | literature | Who chooses which measurements to make ([notes](literature_experiment_design.md)) | uncertainty-driven selection exists (FPS 2.0); none uses AlphaFold's PAE | `phaseB/experiment-design-probe` | `0285b5a` Literature: who chooses which measurements to make (DEER, FRET, NMR, crosslinks) |
 | 44 | 2026-11-10 21:44 | literature / B probe | Full text of Kazmier 2011, FPS 2.0, DEERFold; prereg amendment 1 adds DEER heuristic and FPS-style baselines | DEER practice uses a 2011 sequence heuristic; DEERFold uses pLDDT only as a post-hoc filter | `phaseB/experiment-design-probe` | `3f226fa` Literature: full-text reading of Kazmier 2011, FPS 2.0, DEERFold; pre-registration amendment 1 |
+| 45 | 2026-11-12 14:26 | B probe | Pre-registration amendment 2: lDDT headline, chain restraints, DEER heuristic + mRMR baselines, predicted-curve check | — | `phaseB/planning-probe` | `cb74726` Phase B probe: pre-registration amendment 2 (lDDT headline, chain restraints, DEER heuristic and mRMR baselines, predicted-curve check) |
+| 46 | 2026-11-12 14:32 | B probe | Baselines, chain-restrained fusion, probe script (debugged on 20 val proteins only) | — | `phaseB/planning-probe` | `459997f` Phase B probe: DEER heuristic, ensemble mRMR, chain-restrained fusion, probe script |
+| 47 | 2026-11-12 15:11 | B probe | Test run, 266 proteins ([results](phaseB_probe_results.md)) | **Pre-registered lDDT criterion FAIL** (fusion lowers lDDT for every strategy). RMSD removed at 20 pairs: PAE greedy +0.18 Å vs random +0.004, DEER rule +0.11; AF error 1–2 Å: +0.22 vs +0.04. Predicted error ranks realised (ρ 0.62), 4x too large | `phaseB/planning-probe` | `aa47d5d` Phase B probe results: pre-registered lDDT criterion FAIL; pair choice matters for RMSD |
 
 ## Status of planned steps
 
-**Resume here (2026-11-11):** everything is merged to `main`; branch new
-work from `main`. Setup: `pip install -e ".[test,atlas,phasea]"`, plus
-`apt install mmseqs2` if splits must be remade. Local data (`data/`) is not in
-git: rebuild with `a2_build_af_error_set.py` (~60 min) if needed.
+**Resume here (2026-11-12, after the planning probe):** everything merged to
+`main`. Setup: `pip install -e ".[test,atlas,phasea]"`; `data/afset` is local
+only (rebuild with `a2_build_af_error_set.py`, ~60 min).
 
-Phase A is finished (NO-GO on the primary set; write-up
-[phaseA_results.md](phaseA_results.md)). Current direction: **Phase B probe,
-measurement planning** — given an AlphaFold model, say how many and which
-residue pairs to measure (DEER / smFRET), and the predicted result.
-Pre-registration: [phaseB_design_preregistration.md](phaseB_design_preregistration.md)
-(+ amendment 1). Done: selection code (`src/auf/design.py`), literature
-([literature_experiment_design.md](literature_experiment_design.md)).
-Next, in order:
-1. Amendment 2 (before running): headline outcome lDDT-Cα (overall) and
-   state-call confidence (two-state benchmark), RMSD secondary; add the
-   "does the predicted error curve come true" check; add chain restraints to
-   fusion so lDDT is not damaged.
-2. Build baselines heuristic_deer and ensemble_fps; write the probe script;
-   run on the 266 test proteins (~30–60 min CPU).
-3. **Goal-weighted uncertainty** (core object, see plan change 2026-11-10b):
-   implement W options (overall/local lDDT-like, region, single quantity,
-   which-state), the factors of P^1/2 W P^1/2, and the experiment-aware gain
-   W^1/2 P Hᵀ(HPHᵀ+R)⁻¹HP W^1/2; selection and the "how many pairs" curve
-   use it. Measure the ceiling: estimate M = E[W^1/2 e eᵀ W^1/2 | AF outputs]
-   on train and report how much of the best achievable capture PAE / ANM
-   reach on test.
-4. **Tolerance-whitened factors and measurement floor** (plan change
-   2026-11-10c): Λ = T^-1/2 P T^-1/2 for a stated tolerance T; factors with
-   λ > 1 need data; Cauchy interlacing gives #pairs ≥ #{λ > 1} (linear model).
-   Test on the A2 set: floor k vs greedy count k′ to reach the tolerance
-   (k′ ≥ k must hold; does k predict k′?). Also AIRM-geodesic calibration
-   toward M (t fitted on train) and an AIRM-step stopping rule.
-5. Survey deposited real DEER / FRET / crosslink data (PDB-IHM, DEERFold
-   datasets, BMRB, PRIDE) for a replay test.
-Decide after step 2 whether to continue (cheap, decisive).
+Results so far: Phase A ([phaseA_results.md](phaseA_results.md)) and the
+measurement-planning probe ([phaseB_probe_results.md](phaseB_probe_results.md)).
+The probe's pre-registered lDDT criterion failed because Cα-only fusion
+lowers lDDT for every strategy; on RMSD, pair choice from AlphaFold's
+uncertainty clearly beats random and the DEER rule, mostly for models 1–2 Å
+off. Open options (not agreed):
+1. Fusion that preserves local geometry (more local restraints, or
+   DEERFold/AlphaLink-based on a GPU), then re-test with lDDT.
+2. Calibrate the predicted error curve (one constant, train) and the
+   measurement floor (plan change 2026-11-10c).
+3. Two-state hard cases (DEERFold targets).
+4. Write up Phase A + Stage 1 (+ this probe) as a preprint and release the
+   1,282-protein AlphaFold error benchmark.
+Goal-weighted uncertainty (2026-11-10b) remains the framing for 1–3.
 
 | Step | Status | Branch | Notes |
 |---|---|---|---|
@@ -111,7 +97,7 @@ Decide after step 2 whether to continue (cheap, decisive).
 | A2 AlphaFold error set | done | `phaseA/af-error-set` | 1,282 proteins; splits 743/273/266 (test below the ≥300 target: candidates ran out). `a2_build_af_error_set.py` then `a2_splits.py` |
 | A3 PAE → covariance | done | `phaseA/af-error-set` | frozen in `params/phasea_a3.json`; rank 80 at grid edge |
 | A4 alignment + fusion | done | `phaseA/af-error-set` | [a4_report.md](../results/phaseA/a4_report.md); post hoc [a4b](../results/phaseA/a4b_exploratory.md) |
-| B probe (measurement planning) | pre-registered; code partly written | `phaseB/experiment-design-probe` | see resume note |
+| B probe (measurement planning) | done: lDDT criterion FAIL; RMSD positive | `phaseB/planning-probe` | [phaseB_probe_results.md](phaseB_probe_results.md) |
 | A5 gate | NO-GO on primary set; secondary (ATLAS/MD) not run | `phaseA/af-error-set` | [phaseA_results.md](phaseA_results.md) |
 | Stage 1 results rerun | done except 01, 05, 07 (need raw trajectories) | `phaseA/af-error-set` | committed under `results/` |
 | B, C | not started | — | |
