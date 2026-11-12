@@ -122,3 +122,10 @@ had been computed.
    the m = 50 sequence for greedy methods); candidate pool for generic
    strategies capped at 4,000 pairs per protein by a seeded subsample if
    larger (compute); development and debugging on 20 validation proteins only.
+
+Clarification to amendment 2, item 3 (same day, still before any result):
+the strand rule is garbled above. Intended and implemented: a residue is
+**strand** if d(i−1, i+1) > 6.2 Å and it is not helix. Secondary-structure
+elements are maximal runs of ≥ 3 consecutive residues of the same type.
+Fusion noise for the chain pseudo-observations uses per-pair noise
+(measured pairs 1.0 Å, chain pairs 0.05 Å).

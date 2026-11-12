@@ -56,7 +56,7 @@ def fuse_distances(
     pairs : (M, 2) residue index pairs measured.
     d_obs : (..., M) observed distances; a leading batch axis fuses several
         independent data sets against the same prior.
-    noise_sd : measurement noise, Å.
+    noise_sd : measurement noise sd, Å (scalar or one per pair).
 
     Returns
     -------
@@ -66,7 +66,7 @@ def fuse_distances(
     batch = d_obs.shape[:-1]
     d_obs = d_obs.reshape(-1, d_obs.shape[-1])
     n = len(mu)
-    r = noise_sd**2 * np.eye(len(pairs))
+    r = np.diag(np.broadcast_to(np.asarray(noise_sd, float) ** 2, (len(pairs),)).copy())
     xs, covs = [], []
     for d in d_obs:
         x = mu.copy()
