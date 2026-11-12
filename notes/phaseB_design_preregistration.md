@@ -81,3 +81,44 @@ at their respective costs.
 **Secondary:** all strategies with the feasibility filter (exposed, helix or
 strand, > 15 Å). **Second benchmark (separate pre-registration before it
 runs):** DEERFold's two-state targets, outcome = reaching the other state.
+
+### 2026-11-12, amendment 2 (before any selection result was computed)
+
+Decided in discussion on 2026-11-10/11 and after reading Hays et al. 2018,
+Optimal Probes and Labelizer; no selection or fusion result of this probe
+had been computed.
+
+1. **Headline outcome: lDDT-Cα gain** over the AF model (what users read,
+   same scale as pLDDT). Cα RMSD removed becomes secondary. The success
+   criterion is otherwise unchanged: at m = 20, generic candidates, test
+   split, greedy_pae beats random, greedy_scalar and heuristic_deer in lDDT-Cα
+   gain (paired mean, 95% bootstrap CI excluding zero, better in >= 60% of
+   proteins).
+2. **Chain restraints in fusion** for every strategy: consecutive Cα–Cα
+   distances fixed to their AF-model values (sd 0.05 Å) as pseudo-
+   observations, so fusion stops damaging local geometry (Phase A).
+   A **chain-only** run (m = 0) is reported as the reference.
+3. **heuristic_deer, fixed definition (Cα only):** helix residue if
+   d(i, i+3) < 6.0 Å and d(i, i+4) < 6.8 Å; strand residue if
+   d(i, i−2, i+2 span) > 6.2 Å for both neighbours (d(i−1, i+1) > 6.2 Å);
+   exposed if its Cα has fewer neighbours within 10 Å than the protein's
+   median. Candidates: both residues helix/strand and exposed, AF distance
+   15–60 Å (> 15 Å as in DEERFold; ≤ 60 Å DEER window), |i − j| ≥ 3. Greedy:
+   each step takes the candidate maximising log sequence separation, skipping
+   pairs whose two secondary-structure elements are already connected, until
+   all element pairs are used, then by separation alone.
+4. **ensemble_mrmr (Hays 2018 / FPS 2.0 MI mode):** 200 conformers drawn from
+   N(AF model, scale × pae_lowrank); per candidate, distance variance v and
+   correlation ρ with chosen pairs. Relevance ½ log(1 + v / σ²); redundancy =
+   mean over chosen of −½ log(1 − ρ²); greedy on relevance − redundancy.
+5. **Predicted-curve check (secondary):** for greedy_pae, the predicted
+   expected squared error after m pairs, tr(P_post) (linearised, frozen
+   scale), against the realised squared Cα error after fusion. Reported:
+   Spearman correlation across proteins and the median ratio
+   realised / predicted at m = 5, 10, 20, 50. A ratio far from 1 means the
+   "how many pairs" curve would need calibration before use.
+6. Fixed details: noise sd 1.0 Å; 3 noise realisations per selection; random:
+   3 draws × 3 realisations; budgets nested (the m = 5 set is the first 5 of
+   the m = 50 sequence for greedy methods); candidate pool for generic
+   strategies capped at 4,000 pairs per protein by a seeded subsample if
+   larger (compute); development and debugging on 20 validation proteins only.
